@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.pkl
+
+# Environment
+.env
+
+# Node
+node_modules/
+dist/
+
+# Local buffer
+local_buffer.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+*.egg-info/
+build/
+dist/

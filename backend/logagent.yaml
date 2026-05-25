@@ -1,0 +1,7 @@
+server_url: http://localhost:8000/api/logs/ingest
+api_key: nZ8Jki4LrWloU9w_mNHyLkcLkuRX_sgpoT5hb2_dFW8
+batch_size: 100
+poll_interval_seconds: 5
+flush_interval_seconds: 60
+sqlite_db_path: local_buffer.db
+# Change this line (the last one) to point to your PC's actual shared folder
