@@ -273,11 +273,20 @@ class LogAgent:
         new_last_record = last_record
 
         try:
-            flags = (
+            flags_seek = (
+                win32evtlog.EVENTLOG_FORWARDS_READ
+                | win32evtlog.EVENTLOG_SEEK_READ
+            )
+            flags_seq = (
                 win32evtlog.EVENTLOG_FORWARDS_READ
                 | win32evtlog.EVENTLOG_SEQUENTIAL_READ
             )
-            events = win32evtlog.ReadEventLog(handle, flags, last_record + 1)
+            
+            try:
+                events = win32evtlog.ReadEventLog(handle, flags_seek, last_record + 1)
+            except Exception:
+                # If last_record + 1 doesn't exist yet, we've reached the end
+                events = ()
 
             while events:
                 for event in events:
@@ -310,7 +319,7 @@ class LogAgent:
                         }
                     )
 
-                events = win32evtlog.ReadEventLog(handle, flags, 0)
+                events = win32evtlog.ReadEventLog(handle, flags_seq, 0)
         finally:
             win32evtlog.CloseEventLog(handle)
 
