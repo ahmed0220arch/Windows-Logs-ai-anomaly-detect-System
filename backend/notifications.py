@@ -21,7 +21,7 @@ ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@neopolis.com")
 # =====================================================================
 # Tracks the last time an alert was fired per project to prevent 50,000 emails a minute.
 _last_alert_timestamps = {}
-ALERT_COOLDOWN_SECONDS = 300 # 5 minutes
+ALERT_COOLDOWN_SECONDS = 10 # 10 seconds for presentation testing
 
 def send_critical_alert_email(category: str, project_name: str, log_details: str, recipient_email: str = ""):
     """
