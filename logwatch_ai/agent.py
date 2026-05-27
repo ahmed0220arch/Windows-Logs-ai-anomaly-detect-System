@@ -69,7 +69,7 @@ class LogAgent:
         api_key: str,
         batch_size: int = 100,
         poll_interval_seconds: int = 5,
-        flush_interval_seconds: int = 60,
+        flush_interval_seconds: int = 5,
         sqlite_db_path: str = "local_buffer.db",
     ):
         self.server_url = server_url
@@ -265,7 +265,7 @@ class LogAgent:
     @staticmethod
     def _read_new_events(log_name: str, last_record: int) -> Tuple[List[dict], int]:
         """
-        Read events newer than last_record from the given log.
+        Read events newer than last_record from the given log by reading backwards.
         Returns (payloads, new_last_record).
         """
         handle = win32evtlog.OpenEventLog(None, log_name)
@@ -273,31 +273,32 @@ class LogAgent:
         new_last_record = last_record
 
         try:
-            flags_seek = (
-                win32evtlog.EVENTLOG_FORWARDS_READ
-                | win32evtlog.EVENTLOG_SEEK_READ
-            )
-            flags_seq = (
-                win32evtlog.EVENTLOG_FORWARDS_READ
+            flags = (
+                win32evtlog.EVENTLOG_BACKWARDS_READ
                 | win32evtlog.EVENTLOG_SEQUENTIAL_READ
             )
             
             try:
-                events = win32evtlog.ReadEventLog(handle, flags_seek, last_record + 1)
-            except Exception:
-                # If last_record + 1 doesn't exist yet, we've reached the end
+                events = win32evtlog.ReadEventLog(handle, flags, 0)
+            except Exception as e:
+                print(f"[WARN] Failed initial read for {log_name}: {e}")
                 events = ()
 
-            while events:
+            if events:
+                # The very first event we see when reading backwards is the newest in the log
+                new_last_record = max(last_record, int(events[0].RecordNumber))
+
+            done = False
+            while events and not done:
                 for event in events:
                     record_number = int(event.RecordNumber)
-                    if record_number <= new_last_record:
-                        continue
-
-                    new_last_record = record_number
+                    
+                    # Stop if we hit an event we've already seen
+                    if record_number <= last_record:
+                        done = True
+                        break
 
                     level = EVENT_TYPE_MAP.get(event.EventType, "INFO")
-
                     inserts = event.StringInserts or []
                     message = " | ".join(str(part) for part in inserts).strip()
                     if not message:
@@ -319,10 +320,17 @@ class LogAgent:
                         }
                     )
 
-                events = win32evtlog.ReadEventLog(handle, flags_seq, 0)
+                if not done:
+                    try:
+                        events = win32evtlog.ReadEventLog(handle, flags, 0)
+                    except Exception:
+                        events = ()
+                        
         finally:
             win32evtlog.CloseEventLog(handle)
 
+        # Because we read backwards, the payloads list has newest-first. Reverse it to send oldest-first.
+        payloads.reverse()
         return payloads, new_last_record
 
     # ---------------------------------------------------------
