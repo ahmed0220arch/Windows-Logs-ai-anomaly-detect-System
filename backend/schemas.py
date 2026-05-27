@@ -27,6 +27,7 @@ class LogResponse(BaseModel):
     cpu_percent: float | None = None
     ram_percent: float | None = None
     project_id: int | None = None
+    project_name: str | None = None
     is_anomaly: bool | None = False
 
 

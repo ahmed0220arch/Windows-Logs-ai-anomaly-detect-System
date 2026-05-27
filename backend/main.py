@@ -312,6 +312,13 @@ def list_logs(
         .all()
     )
 
+    # Build a lookup of project_id -> project_name
+    project_ids = {r[6] for r in rows if r[6] is not None}
+    project_map = {}
+    if project_ids:
+        projects = db.query(ProjectDB.id, ProjectDB.name).filter(ProjectDB.id.in_(project_ids)).all()
+        project_map = {pid: pname for pid, pname in projects}
+
     responses: list[LogResponse] = []
     for log_id, log_level, log_message, log_timestamp, log_cpu, log_ram, log_project_id, log_is_anomaly in rows:
         inferred_type = infer_log_type(str(log_message))
@@ -328,6 +335,7 @@ def list_logs(
                 cpu_percent=float(log_cpu) if log_cpu is not None else None,
                 ram_percent=float(log_ram) if log_ram is not None else None,
                 project_id=int(log_project_id) if log_project_id is not None else None,
+                project_name=project_map.get(log_project_id) if log_project_id is not None else None,
                 is_anomaly=bool(log_is_anomaly),
             )
         )

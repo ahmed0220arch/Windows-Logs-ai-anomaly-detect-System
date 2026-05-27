@@ -161,8 +161,9 @@ export default function AnomaliesPage() {
 
     try {
       const token = localStorage.getItem('access_token');
+      const baseUrl = api.defaults.baseURL || 'http://localhost:8000';
       const response = await fetch(
-        `http://localhost:8000/api/logs/export?${params.toString()}`,
+        `${baseUrl}/api/logs/export?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!response.ok) throw new Error('Export failed');
@@ -396,8 +397,8 @@ export default function AnomaliesPage() {
                     <td className="px-6 py-3 whitespace-nowrap text-[12px]" style={{ color: '#7a84b3' }}>
                       {log.ram_percent ?? '-'}
                     </td>
-                    <td className="px-6 py-3 whitespace-nowrap text-[12px]" style={{ color: '#7a84b3' }}>
-                      {log.project_id ?? '-'}
+                    <td className="px-6 py-3 whitespace-nowrap text-[12px] font-medium" style={{ color: '#818cf8' }}>
+                      {log.project_name || log.project_id || '-'}
                     </td>
                     <td className="px-6 py-3 text-[13px] font-mono break-words" style={{ color: '#e2e8f0', maxWidth: '300px' }}>
                       {log.message}

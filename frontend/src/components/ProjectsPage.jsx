@@ -29,6 +29,7 @@ function formatCreatedDate(isoString) {
 function CreateModal({ isOpen, onClose, onSave, isSubmitting }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
   if (!isOpen) return null;
 
@@ -38,9 +39,11 @@ function CreateModal({ isOpen, onClose, onSave, isSubmitting }) {
     await onSave({
       name: name.trim(),
       description: description.trim() || null,
+      user_email: userEmail.trim() || null,
     });
     setName('');
     setDescription('');
+    setUserEmail('');
   };
 
   return (
@@ -118,6 +121,25 @@ function CreateModal({ isOpen, onClose, onSave, isSubmitting }) {
             />
           </div>
 
+          <div className="relative">
+            <input
+              type="email"
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              placeholder="User Email (for notifications)"
+              className="w-full text-sm outline-none transition-all box-border"
+              style={{
+                padding: '14px 20px',
+                color: '#ffffff',
+                background: 'rgba(20, 20, 28, 0.7)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '30px',
+              }}
+              onFocus={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -175,11 +197,11 @@ export default function ProjectsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleCreate = async ({ name, description }) => {
+  const handleCreate = async ({ name, description, user_email }) => {
     setIsCreating(true);
     setError('');
     try {
-      await api.post('/api/projects', { name, description });
+      await api.post('/api/projects', { name, description, user_email });
       await fetchProjects();
       setModalOpen(false);
     } catch (err) {
@@ -284,7 +306,7 @@ export default function ProjectsPage() {
             <table className="min-w-full">
               <thead>
                 <tr style={{ borderBottom: '1px solid #1a2555' }}>
-                  {['ID', 'Project', 'Description', 'Status', 'API Key', 'Created', 'Actions'].map((h) => (
+                  {['ID', 'Project', 'User Email', 'Description', 'Status', 'API Key', 'Created', 'Actions'].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.12em]"
@@ -310,6 +332,12 @@ export default function ProjectsPage() {
 
                     <td className="px-6 py-4">
                       <p className="text-[14px] font-semibold text-white">{project.name}</p>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <p className="text-[13px] font-medium" style={{ color: '#818cf8' }}>
+                        {project.user_email || '—'}
+                      </p>
                     </td>
 
                     <td className="px-6 py-4">
@@ -400,7 +428,7 @@ export default function ProjectsPage() {
 
                 {isLoading && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-[13px]" style={{ color: '#3d4a7a' }}>
+                    <td colSpan={8} className="px-6 py-12 text-center text-[13px]" style={{ color: '#3d4a7a' }}>
                       Loading projects...
                     </td>
                   </tr>
@@ -408,7 +436,7 @@ export default function ProjectsPage() {
 
                 {!isLoading && filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-[13px]" style={{ color: '#3d4a7a' }}>
+                    <td colSpan={8} className="px-6 py-12 text-center text-[13px]" style={{ color: '#3d4a7a' }}>
                       No projects found.
                     </td>
                   </tr>

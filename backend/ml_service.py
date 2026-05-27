@@ -110,14 +110,12 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
         "isatap",           # ISATAP tunnel adapter (IPv6 transition)
         "teredo",           # Teredo tunneling (IPv6 transition)
         "dhcp",             # DHCP lease renewal
-        "winlogon",         # Normal Windows logon subsystem
         "certif",           # Certificate auto-enrollment
         "volsnap",          # Volume Shadow Copy events
         "defrag",           # Disk defragmentation
         "chkdsk",           # Disk check
         "bits",             # Background Intelligent Transfer
         "wuauserv",         # Windows Update agent
-        "spoolsv",          # Print Spooler
     ]
     msg_lower = message.lower()
     if any(pattern in msg_lower for pattern in BENIGN_PATTERNS):

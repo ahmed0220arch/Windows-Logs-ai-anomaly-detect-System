@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+agent_venv/
 *.pkl
 
 # Environment
