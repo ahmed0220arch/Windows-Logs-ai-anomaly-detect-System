@@ -232,23 +232,10 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
                 log_obj.is_anomaly = True
                 db.commit()
 
-            # Call Notification Engine
-            from notifications import send_critical_alert_email
-            from models import UserDB as UserModel, NotificationDB, ProjectDB as ProjModel
+            # ---------------------------------------------------------
+            # 3. Notification & Database Labeling Hooks
+            # ---------------------------------------------------------
             
-            log_details = f"Score: {score:.4f} | Threshold: {threshold}\nLevel: {level}\nMessage: {message}\nCPU: {cpu or 0.0:.1f}% | RAM: {ram or 0.0:.1f}%"
-            
-            # 1. Always send to the admin (it will use .env ADMIN_EMAIL if no recipient is passed)
-            admin_user = db.query(UserModel).filter(UserModel.is_active == True).first()
-            admin_dest = admin_user.alert_email if admin_user and hasattr(admin_user, 'alert_email') and admin_user.alert_email else ""
-            send_critical_alert_email(log_type, project_name, log_details, recipient_email=admin_dest)
-            
-            # 2. Fetch the user email attached to the project
-            project_obj = db.query(ProjModel).filter(ProjModel.id == project_id).first()
-            user_dest = project_obj.user_email if project_obj and hasattr(project_obj, 'user_email') and project_obj.user_email else ""
-            if user_dest and user_dest != admin_dest:
-                send_critical_alert_email(log_type, project_name, log_details, recipient_email=user_dest)
-
             # Create in-app notification
             notif = NotificationDB(
                 title=f"Anomaly Detected — {log_type}",
@@ -257,12 +244,86 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
                 project_name=project_name,
             )
             db.add(notif)
+            
+            # Queue Email for Relay
+            from models import UserDB as UserModel, ProjectDB as ProjModel
+            
+            log_details = f"Score: {score:.4f} | Threshold: {threshold}\nLevel: {level}\nMessage: {message}\nCPU: {cpu or 0.0:.1f}% | RAM: {ram or 0.0:.1f}%"
+            
+            # 1. Admin Email Queue
+            admin_user = db.query(UserModel).filter(UserModel.is_active == True).first()
+            admin_dest = admin_user.alert_email if admin_user and hasattr(admin_user, 'alert_email') and admin_user.alert_email else ""
+            if admin_dest:
+                email_notif_admin = NotificationDB(
+                    title=f"PENDING_EMAIL_TO: {admin_dest}",
+                    message=log_details,
+                    level=log_type,
+                    project_name=project_name,
+                )
+                db.add(email_notif_admin)
+            else:
+                # Fallback to a special marker so the relay can use its local ADMIN_EMAIL config
+                email_notif_fallback = NotificationDB(
+                    title=f"PENDING_EMAIL_TO: FALLBACK_ADMIN",
+                    message=log_details,
+                    level=log_type,
+                    project_name=project_name,
+                )
+                db.add(email_notif_fallback)
+                
+            # 2. Project User Email Queue
+            project_obj = db.query(ProjModel).filter(ProjModel.id == project_id).first()
+            user_dest = project_obj.user_email if project_obj and hasattr(project_obj, 'user_email') and project_obj.user_email else ""
+            if user_dest and user_dest != admin_dest:
+                email_notif_user = NotificationDB(
+                    title=f"PENDING_EMAIL_TO: {user_dest}",
+                    message=log_details,
+                    level=log_type,
+                    project_name=project_name,
+                )
+                db.add(email_notif_user)
             db.commit()
+
         else:
             # NOT an anomaly — delete it from the database immediately
             # The ML has already scored it; no reason to keep normal logs
             db.query(LogDB).filter(LogDB.id == log_id).delete()
             db.commit()
+
+
+@router.get("/pending_emails")
+def get_pending_emails(api_key: str, db: Session = Depends(get_db)):
+    """
+    Secure endpoint for the local Email Relay Microservice.
+    Fetches unsent emails from the NotificationDB queue and marks them as read.
+    """
+    # 1. Authenticate using the project API key (which the relay will provide)
+    from models import ProjectDB, NotificationDB
+    project = db.query(ProjectDB).filter(ProjectDB.api_key == api_key).first()
+    if not project:
+        raise HTTPException(status_code=401, detail="Invalid API Key for Relay")
+        
+    # 2. Fetch pending emails
+    pending = db.query(NotificationDB).filter(
+        NotificationDB.title.like("PENDING_EMAIL_TO:%"),
+        NotificationDB.is_read == False
+    ).all()
+    
+    # 3. Format response
+    response = []
+    for p in pending:
+        response.append({
+            "id": p.id,
+            "recipient": p.title.replace("PENDING_EMAIL_TO: ", "").strip(),
+            "category": p.level,
+            "project_name": p.project_name,
+            "log_details": p.message,
+        })
+        # Mark as read so it isn't sent twice
+        p.is_read = True
+        
+    db.commit()
+    return {"emails": response}
 
     finally:
         db.close()
