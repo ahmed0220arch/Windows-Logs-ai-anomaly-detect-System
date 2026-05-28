@@ -232,22 +232,17 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
                 log_obj.is_anomaly = True
                 db.commit()
 
-            # Call Notification Engine
-            from notifications import send_critical_alert_email
-            from models import UserDB as UserModel, NotificationDB, ProjectDB as ProjModel
-            
-            log_details = f"Score: {score:.4f} | Threshold: {threshold}\nLevel: {level}\nMessage: {message}\nCPU: {cpu or 0.0:.1f}% | RAM: {ram or 0.0:.1f}%"
-            
-            # 1. Always send to the admin (it will use .env ADMIN_EMAIL if no recipient is passed)
-            admin_user = db.query(UserModel).filter(UserModel.is_active == True).first()
-            admin_dest = admin_user.alert_email if admin_user and hasattr(admin_user, 'alert_email') and admin_user.alert_email else ""
-            send_critical_alert_email(log_type, project_name, log_details, recipient_email=admin_dest)
-            
-            # 2. Fetch the user email attached to the project
-            project_obj = db.query(ProjModel).filter(ProjModel.id == project_id).first()
-            user_dest = project_obj.user_email if project_obj and hasattr(project_obj, 'user_email') and project_obj.user_email else ""
-            if user_dest and user_dest != admin_dest:
-                send_critical_alert_email(log_type, project_name, log_details, recipient_email=user_dest)
+            # ---------------------------------------------------------
+            # 3. Notification & Database Labeling Hooks
+            # ---------------------------------------------------------
+            if score < threshold:
+                # ANOMALY DETECTED — keep it in the database, notify admin
+                anomaly_counter.inc()
+                
+                log_obj = db.query(LogDB).filter(LogDB.id == log_id).first()
+                if log_obj:
+                    log_obj.is_anomaly = True
+                    db.commit()
 
             # Create in-app notification
             notif = NotificationDB(
