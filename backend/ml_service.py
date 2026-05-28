@@ -7,7 +7,7 @@ from collections import defaultdict, deque
 import logging
 
 from sqlalchemy.orm import Session
-from models import LogDB
+from models import LogDB, NotificationDB
 from feature_translator import FeatureTranslator
 from prometheus_client import Counter
 
@@ -228,28 +228,15 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
             return
 
         # ---------------------------------------------------------
-        # 3. Notification & Database Labeling Hooks
+        # 3. Anomaly Decision & Database Labeling
         # ---------------------------------------------------------
         if score < threshold:
-            # ANOMALY DETECTED — keep it in the database, notify admin
+            # ANOMALY DETECTED
             anomaly_counter.inc()
             
             log_obj = db.query(LogDB).filter(LogDB.id == log_id).first()
             if log_obj:
                 log_obj.is_anomaly = True
-                db.commit()
-
-            # ---------------------------------------------------------
-            # 3. Notification & Database Labeling Hooks
-            # ---------------------------------------------------------
-            if score < threshold:
-                # ANOMALY DETECTED — keep it in the database, notify admin
-                anomaly_counter.inc()
-                
-                log_obj = db.query(LogDB).filter(LogDB.id == log_id).first()
-                if log_obj:
-                    log_obj.is_anomaly = True
-                    db.commit()
 
             # Create in-app notification
             notif = NotificationDB(
@@ -262,7 +249,6 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
             db.commit()
         else:
             # NOT an anomaly — delete it from the database immediately
-            # The ML has already scored it; no reason to keep normal logs
             db.query(LogDB).filter(LogDB.id == log_id).delete()
             db.commit()
 
