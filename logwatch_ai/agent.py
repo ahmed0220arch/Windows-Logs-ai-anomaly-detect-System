@@ -234,7 +234,7 @@ class LogAgent:
                 self.server_url,
                 json=payloads,
                 headers=self.headers,
-                timeout=10,
+                timeout=3,
             )
             if response.status_code == 200:
                 print(f"[OK] Sent batch of {len(payloads)} logs to server")
@@ -353,6 +353,7 @@ class LogAgent:
                 last_seen: Dict[str, int] = {}
                 pending: List[Dict] = []
                 last_flush = time.monotonic()
+                last_heartbeat = time.monotonic()
 
                 for log_name in TARGET_LOGS:
                     try:
@@ -400,6 +401,11 @@ class LogAgent:
                             self._buffer_payloads(pending)
                             pending.clear()
                         last_flush = time.monotonic()
+
+                    # Heartbeat so user knows the agent is alive
+                    if time.monotonic() - last_heartbeat >= 30:
+                        print("[AGENT] Listening... (no new events)")
+                        last_heartbeat = time.monotonic()
 
                     time.sleep(self.poll_interval_seconds)
 
