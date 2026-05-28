@@ -52,8 +52,17 @@ export default function DashboardView({ onLogout }) {
       else low += 1;
     }
 
-    const counted = high + medium + low;
-    return { high, medium, low, total: Math.max(counted, totalAnomalies) };
+    let counted = high + medium + low;
+    
+    // Extrapolate distribution if we only fetched a partial page (max 200)
+    if (counted > 0 && totalAnomalies > counted) {
+      const multiplier = totalAnomalies / counted;
+      high = Math.round(high * multiplier);
+      medium = Math.round(medium * multiplier);
+      low = totalAnomalies - high - medium; // Remainder
+    }
+
+    return { high, medium, low, total: totalAnomalies || counted };
   }, [anomalies, totalAnomalies]);
 
   return (
@@ -63,7 +72,7 @@ export default function DashboardView({ onLogout }) {
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar onLogout={onLogout} onToggleSidebar={() => setCollapsed(!collapsed)} onProfileClick={() => setActiveTab('profile')} />
 
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-24 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-5">
             {activeTab === 'users' ? (
               <UsersPage />
