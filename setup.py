@@ -2,11 +2,11 @@ from pathlib import Path
 from setuptools import setup, find_packages
 
 this_dir = Path(__file__).parent.resolve()
-long_description = (this_dir / "logwatch_ai_README.md").read_text(encoding="utf-8")
+long_description = (this_dir / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="logwatch-agent",
-    version="2.0.1",
+    version="2.2.0",
     author="Ahmed Dridi",
     author_email="[EMAIL_ADDRESS]",
     description="Lightweight cloud agent for Windows Event Log anomaly detection",
