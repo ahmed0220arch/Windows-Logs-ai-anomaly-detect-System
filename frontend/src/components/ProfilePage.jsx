@@ -85,7 +85,12 @@ export default function ProfilePage({ onSaveSuccess }) {
           onClick={() => document.getElementById('avatar-upload').click()}
         >
           {profile?.avatar ? (
-            <img src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+            <img
+              src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`}
+              alt="Avatar"
+              className="w-full h-full object-cover"
+              onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-white text-xl font-bold">${(name || profile?.email || 'U').substring(0, 2).toUpperCase()}</span>`; }}
+            />
           ) : (
             <span className="text-white text-xl font-bold">
               {(name || profile?.email || 'U').substring(0, 2).toUpperCase()}

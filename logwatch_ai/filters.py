@@ -63,6 +63,23 @@ _SAFE_WORKGROUP_AUDIT = re.compile(
     re.IGNORECASE,
 )
 
+# ESE / JET database engine diagnostic traces (DataSharing, ESENT, etc.)
+# These are harmless storage-engine housekeeping messages from svchost
+_SAFE_ESE_JET_NOISE = re.compile(
+    r"DS_Token_DB|DS_Store_DB|DSTokenDB|DSStor|lgposAttach|JET_efv|PgRf:|WS:\d+K",
+    re.IGNORECASE,
+)
+
+# ESENT source events (JET engine log rotation, page flush, etc.)
+_NOISE_SOURCES = {
+    "esent",
+    "microsoft-windows-esent",
+    "software protection platform service",
+    "sppextcomobj",
+    "kernel-pnp",
+    "microsoft-windows-kernel-pnp",
+}
+
 
 def is_known_noise(message: str, source_name: str) -> bool:
     """
@@ -72,6 +89,14 @@ def is_known_noise(message: str, source_name: str) -> bool:
     Returns False if the log should be SENT for ML scoring.
     """
     text = message or ""
+
+    # --- Known-Noise Source Names (ESENT, SppExtComObj, Kernel-PnP, etc.) ---
+    if source_name.lower() in _NOISE_SOURCES:
+        return True
+
+    # --- ESE / JET Database Engine Diagnostic Traces ---
+    if _SAFE_ESE_JET_NOISE.search(text):
+        return True
 
     # --- WidgetService Heuristic ---
     if "WidgetService" in text or "WidgetService" in source_name:

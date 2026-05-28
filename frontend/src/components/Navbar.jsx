@@ -170,7 +170,12 @@ export default function Navbar({ onLogout, onToggleSidebar, onProfileClick }) {
             }}
           >
             {profile?.avatar ? (
-              <img src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+              <img
+                src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-white text-xs font-bold">${(profile?.name || 'AD').substring(0, 2).toUpperCase()}</span>`; }}
+              />
             ) : (
               <span className="text-white text-xs font-bold">
                 {profile?.name ? profile.name.substring(0, 2).toUpperCase() : 'AD'}
