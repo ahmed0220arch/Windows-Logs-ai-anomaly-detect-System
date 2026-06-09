@@ -146,22 +146,3 @@
 .login-btn:active {
   transform: scale(0.98);
 }
-
-/* --- REGISTER TEXT --- */
-
-.register-text {
-  text-align: center;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
-  margin: 24px 0 0;
-}
-
-.register-link {
-  color: #ffffff;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.register-link:hover {
-  text-decoration: underline;
-}
