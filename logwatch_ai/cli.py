@@ -99,6 +99,7 @@ def main():
             api_key=args.api_key,
             batch_size=args.batch_size,
             poll_interval_seconds=args.poll_interval,
+            flush_interval_seconds=5,
         )
     else:
         # Fall back to YAML config file

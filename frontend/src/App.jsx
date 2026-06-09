@@ -104,9 +104,7 @@ const LoginView = () => {
           </button>
         </form>
 
-        <p className="register-text">
-          Don't have a account? <a href="#" className="register-link">Register</a>
-        </p>
+
       </div>
     </div>
   );
