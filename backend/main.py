@@ -212,6 +212,7 @@ app.add_middleware(SlowAPIMiddleware)
 # Build CORS origins: always allow localhost dev, plus production frontend if set
 _cors_origins = [
     "http://localhost:5173",
+    "https://windows-logs-ai-anomaly-detect-system-1.onrender.com",
 ]
 _prod_frontend = os.getenv("FRONTEND_URL")
 if _prod_frontend:
@@ -398,23 +399,25 @@ def export_logs(
         from fpdf import FPDF
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="Anomaly Report Export", ln=1, align='C')
+        pdf.set_font("Helvetica", 'B', 16)
+        pdf.cell(200, 10, text="Anomaly Report Export", ln=True, align='C')
         pdf.ln(10)
         
-        pdf.set_font("Arial", size=10)
+        pdf.set_font("Helvetica", size=10)
         for row in filtered_rows:
             log_id, log_level, inferred, log_message, log_timestamp, log_cpu, log_ram, log_pid, log_anomaly = row
-            pdf.set_font("Arial", 'B', 10)
-            pdf.cell(40, 6, f"[{log_level}] {inferred}", 0, 0)
-            pdf.set_font("Arial", size=8)
-            pdf.cell(50, 6, str(log_timestamp)[:19], 0, 0)
-            pdf.cell(40, 6, f"CPU: {log_cpu}% RAM: {log_ram}%", 0, 1)
-            pdf.multi_cell(0, 5, str(log_message)[:300])
+            pdf.set_font("Helvetica", 'B', 10)
+            pdf.cell(40, 6, f"[{log_level}] {inferred}", new_x="RIGHT", new_y="TOP")
+            pdf.set_font("Helvetica", size=8)
+            pdf.cell(50, 6, str(log_timestamp)[:19], new_x="RIGHT", new_y="TOP")
+            pdf.cell(40, 6, f"CPU: {log_cpu}% RAM: {log_ram}%", new_x="LEFT", new_y="NEXT")
+            # Sanitize message for PDF: replace problematic chars
+            safe_msg = str(log_message)[:300].encode('latin-1', 'replace').decode('latin-1')
+            pdf.multi_cell(0, 5, safe_msg)
             pdf.ln(2)
 
         output_pdf = io.BytesIO()
-        output_pdf.write(pdf.output(dest='S').encode('latin1', 'replace'))
+        pdf.output(output_pdf)
         output_pdf.seek(0)
         
         filename = f"logs_export_{datetime.date.today()}.pdf"

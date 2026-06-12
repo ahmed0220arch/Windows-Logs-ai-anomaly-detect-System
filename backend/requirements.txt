@@ -16,4 +16,4 @@ prometheus-fastapi-instrumentator
 slowapi
 python-multipart
 pydantic[email]
-fpdf
+fpdf2
