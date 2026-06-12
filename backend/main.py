@@ -5,6 +5,8 @@ import secrets
 import time
 from typing import Any
 
+import bcrypt
+
 import json
 import urllib.request
 from dotenv import load_dotenv
@@ -565,6 +567,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 class ProfileUpdate(BaseModel):
     name: str | None = None
     alert_email: str | None = None
+    password: str | None = None
 
 
 @app.get("/api/profile")
@@ -602,6 +605,11 @@ def update_profile(
         user.name = payload.name
     if payload.alert_email is not None:
         user.alert_email = payload.alert_email
+    if payload.password is not None:
+        if len(payload.password) < 8:
+            raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+        salt = bcrypt.gensalt()
+        user.hashed_password = bcrypt.hashpw(payload.password.encode('utf-8'), salt).decode('utf-8')
 
     db.commit()
     db.refresh(user)

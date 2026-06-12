@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { User, Mail, Shield, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Shield, Save, CheckCircle, AlertCircle, Lock, Camera } from 'lucide-react';
 import api from '../services/api';
 
 export default function ProfilePage({ onSaveSuccess }) {
   const [profile, setProfile] = useState(null);
   const [name, setName] = useState('');
   const [alertEmail, setAlertEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
@@ -31,19 +33,41 @@ export default function ProfilePage({ onSaveSuccess }) {
   const handleSave = async () => {
     setIsSaving(true);
     setFeedback({ type: '', message: '' });
+
+    // Password validation
+    if (newPassword || confirmPassword) {
+      if (newPassword.length < 8) {
+        setFeedback({ type: 'error', message: 'New password must be at least 8 characters.' });
+        setIsSaving(false);
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setFeedback({ type: 'error', message: 'Passwords do not match.' });
+        setIsSaving(false);
+        return;
+      }
+    }
+
     try {
-      const response = await api.put('/api/profile', {
+      const payload = {
         name,
         alert_email: alertEmail,
-      });
+      };
+      if (newPassword) {
+        payload.password = newPassword;
+      }
+      const response = await api.put('/api/profile', payload);
       setProfile(response.data);
-      setFeedback({ type: 'success', message: 'Profile updated successfully!' });
+      setNewPassword('');
+      setConfirmPassword('');
+      setFeedback({ type: 'success', message: newPassword ? 'Profile & password updated!' : 'Profile updated successfully!' });
       setTimeout(() => {
         setFeedback({ type: '', message: '' });
         if (onSaveSuccess) onSaveSuccess();
       }, 1000);
-    } catch {
-      setFeedback({ type: 'error', message: 'Failed to update profile.' });
+    } catch (err) {
+      const msg = err?.response?.data?.detail || 'Failed to update profile.';
+      setFeedback({ type: 'error', message: msg });
     } finally {
       setIsSaving(false);
     }
@@ -77,50 +101,60 @@ export default function ProfilePage({ onSaveSuccess }) {
         className="rounded-xl p-6 flex items-center gap-5"
         style={{ background: '#0d1238', border: '1px solid #1a2555' }}
       >
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden cursor-pointer group"
-          style={{
-            background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-          }}
-          onClick={() => document.getElementById('avatar-upload').click()}
-        >
-          {profile?.avatar ? (
-            <img
-              src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`}
-              alt="Avatar"
-              className="w-full h-full object-cover"
-              onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-white text-xl font-bold">${(name || profile?.email || 'U').substring(0, 2).toUpperCase()}</span>`; }}
-            />
-          ) : (
-            <span className="text-white text-xl font-bold">
-              {(name || profile?.email || 'U').substring(0, 2).toUpperCase()}
-            </span>
-          )}
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-white text-xs font-semibold">Upload</span>
-          </div>
-          <input
-            type="file"
-            id="avatar-upload"
-            className="hidden"
-            accept=".jpg,.jpeg,.png,.webp"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
-              const formData = new FormData();
-              formData.append('file', file);
-              try {
-                const res = await api.post('/api/profile/avatar', formData, {
-                  headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                setProfile({ ...profile, avatar: res.data.avatar });
-                setFeedback({ type: 'success', message: 'Avatar updated!' });
-                setTimeout(() => setFeedback({ type: '', message: '' }), 3000);
-              } catch {
-                setFeedback({ type: 'error', message: 'Failed to upload avatar' });
-              }
+        <div className="flex flex-col items-center gap-2">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden cursor-pointer group"
+            style={{
+              background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
             }}
-          />
+            onClick={() => document.getElementById('avatar-upload').click()}
+          >
+            {profile?.avatar ? (
+              <img
+                src={`${api.defaults.baseURL || 'http://localhost:8000'}${profile.avatar}`}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-white text-xl font-bold">${(name || profile?.email || 'U').substring(0, 2).toUpperCase()}</span>`; }}
+              />
+            ) : (
+              <span className="text-white text-xl font-bold">
+                {(name || profile?.email || 'U').substring(0, 2).toUpperCase()}
+              </span>
+            )}
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera size={16} className="text-white" />
+            </div>
+            <input
+              type="file"
+              id="avatar-upload"
+              className="hidden"
+              accept=".jpg,.jpeg,.png,.webp"
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('file', file);
+                try {
+                  const res = await api.post('/api/profile/avatar', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                  });
+                  setProfile({ ...profile, avatar: res.data.avatar });
+                  setFeedback({ type: 'success', message: 'Avatar updated!' });
+                  setTimeout(() => setFeedback({ type: '', message: '' }), 3000);
+                } catch {
+                  setFeedback({ type: 'error', message: 'Failed to upload avatar' });
+                }
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => document.getElementById('avatar-upload').click()}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all hover:opacity-80"
+            style={{ background: '#1a2555', color: '#818cf8', border: '1px solid #2a3570' }}
+          >
+            <Camera size={12} /> Change Photo
+          </button>
         </div>
         <div>
           <p className="text-[16px] font-semibold text-white">{name || 'Unnamed Admin'}</p>
@@ -187,6 +221,60 @@ export default function ProfilePage({ onSaveSuccess }) {
           <p className="text-[11px]" style={{ color: '#3d4a7a' }}>
             Anomaly detection alerts will be sent to this address. Leave empty to use the default.
           </p>
+        </div>
+
+        {/* Password Section */}
+        <div className="pt-4 mt-4" style={{ borderTop: '1px solid #1a2555' }}>
+          <h3 className="text-[13px] font-bold text-white flex items-center gap-2 mb-4">
+            <Lock size={14} style={{ color: '#818cf8' }} /> Change Password
+          </h3>
+
+          <div className="space-y-4">
+            {/* New Password */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#4a5490' }}>
+                New Password
+              </label>
+              <div
+                className="flex items-center gap-2 px-4 py-3 rounded-lg"
+                style={{ background: '#080d2a', border: '1px solid #1a2555' }}
+              >
+                <Lock size={15} style={{ color: '#4a5490' }} />
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password (min 8 characters)"
+                  className="bg-transparent border-none outline-none text-sm flex-1"
+                  style={{ color: '#c8d0e7' }}
+                />
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#4a5490' }}>
+                Confirm New Password
+              </label>
+              <div
+                className="flex items-center gap-2 px-4 py-3 rounded-lg"
+                style={{ background: '#080d2a', border: '1px solid #1a2555' }}
+              >
+                <Lock size={15} style={{ color: '#4a5490' }} />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  className="bg-transparent border-none outline-none text-sm flex-1"
+                  style={{ color: '#c8d0e7' }}
+                />
+              </div>
+            </div>
+            <p className="text-[11px]" style={{ color: '#3d4a7a' }}>
+              Leave both fields empty if you don't want to change your password.
+            </p>
+          </div>
         </div>
 
         {/* Feedback */}
