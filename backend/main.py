@@ -213,6 +213,8 @@ app.add_middleware(SlowAPIMiddleware)
 _cors_origins = [
     "http://localhost:5173",
     "https://windows-logs-ai-anomaly-detect-system-1.onrender.com",
+    "https://ai-logwatch.me",
+    "https://www.ai-logwatch.me",
 ]
 _prod_frontend = os.getenv("FRONTEND_URL")
 if _prod_frontend:
