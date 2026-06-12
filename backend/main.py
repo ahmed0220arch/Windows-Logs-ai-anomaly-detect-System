@@ -894,38 +894,36 @@ User message:
 {log_data.raw_log}
 """
     try:
-        import urllib.parse
+        import requests
+        import os
         
-        # We use Pollinations AI: A completely free, keyless AI gateway that acts as a proxy to OpenAI/Llama models.
-        # This completely bypasses your network's VPN firewall rules for xAI/OpenAI domains.
-        encoded_prompt = urllib.parse.quote(prompt)
-        url = f"https://text.pollinations.ai/{encoded_prompt}"
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            return {"diagnosis": "**Configuration Error:** GROQ_API_KEY environment variable is missing. Please add it to your .env file or Render dashboard."}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1000
+        }
         
-        req = urllib.request.Request(
-            url, 
-            headers={'User-Agent': 'Mozilla/5.0'}
-        )
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        data = response.json()
         
-        # Enforce direct connection again
-        proxy_support = urllib.request.ProxyHandler({})
-        opener = urllib.request.build_opener(proxy_support)
-        
-        with opener.open(req) as response:
-            text_response = response.read().decode('utf-8')
-            return {"diagnosis": text_response}
+        text_response = data["choices"][0]["message"]["content"]
+        return {"diagnosis": text_response}
             
     except Exception as e:
         error_body = ""
-        if hasattr(e, 'read'):
+        if hasattr(e, 'response') and e.response is not None:
             try:
-                error_body = e.read().decode('utf-8')
+                error_body = e.response.text
             except:
                 pass
         
         return {"diagnosis": f"**API Connection Error:** {str(e)}\n\n**Provider Details:** {error_body}"}
-
-    return {
-        "status": "success",
-        "count": len(new_entries),
-        "ids": [entry.id for entry in new_entries],
-    }
