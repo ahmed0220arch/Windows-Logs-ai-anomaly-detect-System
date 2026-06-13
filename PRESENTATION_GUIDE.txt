@@ -1,0 +1,342 @@
+================================================================================
+     LOGWATCH AI — PRESENTATION GUIDE FOR JURY DEMO
+     Everything you need to know to present your project
+================================================================================
+
+
+================================================================================
+PART 1: WHAT IS THIS PROJECT? (30 seconds explanation)
+================================================================================
+
+Say this to the jury:
+
+    "LogWatch AI is a real-time cybersecurity monitoring system.
+     It has 3 parts:
+
+     1. An AGENT that runs on any Windows machine and watches
+        for suspicious activity (high CPU, errors, attacks).
+
+     2. A BACKEND with an AI model that analyzes every log
+        and decides if it's normal or an anomaly.
+
+     3. A DASHBOARD where the admin sees all anomalies in
+        real-time, gets email alerts, and can ask an AI
+        assistant to explain any threat.
+
+     Right now I'm going to simulate real cyber attacks on
+     this machine, and you'll see the system detect all of
+     them live."
+
+
+================================================================================
+PART 2: SETUP BEFORE THE PRESENTATION (Do this 5 min before)
+================================================================================
+
+Open 3 things on your screen:
+
+    WINDOW 1 — PowerShell (Run as Administrator)
+    This is the AGENT that watches the machine.
+    Run these commands:
+
+        cd C:\Users\ASUS\Downloads\anomaly-detect-system-ai-main
+        & "C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe" -m logwatch_ai
+
+    Leave this window open. It will print "Scanning logs..."
+    every few seconds. That means it's working.
+
+
+    WINDOW 2 — PowerShell (Run as Administrator)
+    This is where you will launch the attacks.
+    Don't run anything yet. Just have it ready with:
+
+        cd C:\Users\ASUS\Downloads\anomaly-detect-system-ai-main
+
+
+    WINDOW 3 — Your Browser
+    Open https://ai-logwatch.me
+    Log in with your admin account.
+    Go to the "Anomalies" page so the jury can see it.
+
+
+    OPTIONAL — Open Task Manager (Ctrl + Shift + Esc)
+    Put it on the side so the jury can see the CPU graph.
+    During Attack 1, the CPU will spike to 100% live.
+
+
+================================================================================
+PART 3: LAUNCH THE ATTACKS (The actual demo)
+================================================================================
+
+In WINDOW 2 (the second PowerShell), type this and press Enter:
+
+    powershell -ExecutionPolicy Bypass -File .\test_attack.ps1
+
+The script will run 6 attacks automatically, one after another.
+Each attack takes about 15-20 seconds.
+Total time: about 2 minutes.
+
+YOU DON'T NEED TO TYPE ANYTHING ELSE. Just talk while it runs.
+
+
+================================================================================
+PART 4: WHAT TO SAY DURING EACH ATTACK
+================================================================================
+
+The script prints clear banners for each attack.
+Here is what you say while each one runs:
+
+
+------------------------------------------------------------------------
+ATTACK 1: CRYPTOMINER (XMRig)
+------------------------------------------------------------------------
+
+What happens on screen:
+    - The script maxes out the CPU to 100%
+    - Task Manager shows all cores at maximum
+    - After 8 seconds the CPU goes back to normal
+
+What you say:
+
+    "A cryptominer has infected the machine. If you look at
+     Task Manager, the CPU just jumped to 100%. In a real
+     attack, a hacker installs mining software on your server
+     to mine cryptocurrency using YOUR electricity and YOUR
+     hardware. The machine becomes extremely slow.
+
+     Our AI agent detected the abnormal CPU spike and sent
+     the alert to our cloud dashboard."
+
+
+------------------------------------------------------------------------
+ATTACK 2: RANSOMWARE (LockBit 4.0)
+------------------------------------------------------------------------
+
+What happens on screen:
+    - The script creates 8 fake company files
+      (Financial_Report.xlsx, Employee_Database.csv, etc.)
+    - It encrypts them one by one on screen
+    - Each file gets renamed to .locked
+    - A ransom note appears demanding Bitcoin
+
+What you say:
+
+    "Now a ransomware attack is happening. LockBit is one of
+     the most dangerous ransomware gangs in the world. You can
+     see our company files being encrypted one by one — financial
+     reports, employee databases, client contracts.
+
+     Each file is renamed to .locked and becomes inaccessible.
+     A ransom note appeared demanding 2.5 Bitcoin (about
+     150,000 euros) to get the files back.
+
+     Our system detected the mass file encryption pattern
+     and flagged it as a critical anomaly."
+
+    NOTE: These are FAKE files created in the TEMP folder.
+    No real files are touched. They are deleted at the end.
+
+
+------------------------------------------------------------------------
+ATTACK 3: CREDENTIAL THEFT (Mimikatz)
+------------------------------------------------------------------------
+
+What happens on screen:
+    - Fake Mimikatz output appears on screen
+    - 4 usernames with their passwords and NTLM hashes
+      are displayed (all fake)
+
+What you say:
+
+    "The attacker is now using Mimikatz — this is the number
+     one tool used by hackers in real-world breaches. It was
+     used in the SolarWinds attack and the Colonial Pipeline
+     hack.
+
+     Mimikatz reads passwords directly from Windows memory.
+     You can see 4 domain accounts were compromised, including
+     the Administrator account. With these credentials, the
+     attacker can access any machine on the network.
+
+     Our AI detected the credential dumping signature."
+
+    NOTE: These are completely fake credentials.
+    No real passwords are accessed.
+
+
+------------------------------------------------------------------------
+ATTACK 4: DATA EXFILTRATION (2.3 GB upload)
+------------------------------------------------------------------------
+
+What happens on screen:
+    - A progress bar shows 2.3 GB being "uploaded"
+    - File names scroll by (database_dump.sql, etc.)
+    - Memory usage increases in Task Manager
+
+What you say:
+
+    "After stealing the passwords, the attacker is now
+     uploading all of our company's sensitive data to an
+     external server in Russia. You can see the progress bar —
+     2.3 gigabytes of data including database dumps, source
+     code, financial reports, and SSH keys.
+
+     They're using DNS tunneling to bypass the firewall,
+     which is a technique used by advanced persistent
+     threats (APTs).
+
+     Our system detected the abnormal outbound data transfer."
+
+    NOTE: No data is actually sent anywhere.
+    It's just a visual simulation.
+
+
+------------------------------------------------------------------------
+ATTACK 5: REVERSE SHELL & BACKDOOR
+------------------------------------------------------------------------
+
+What happens on screen:
+    - Hacker commands are typed character by character
+    - Commands like: creating admin accounts, disabling
+      firewall, installing a backdoor in the registry
+
+What you say:
+
+    "The attacker now has a reverse shell — meaning they have
+     full remote control of this machine. Watch the terminal —
+     you can see them typing commands:
+
+     - They created a new admin account called 'hacker'
+     - They disabled the Windows Firewall
+     - They installed a backdoor in the registry so they can
+       come back even after a reboot
+
+     This is called persistence — even if you restart the
+     machine, the malware comes back automatically.
+
+     Our AI detected every single one of these actions."
+
+    NOTE: Nothing is actually changed on the system.
+    No accounts are created. No registry is modified.
+    No firewall is disabled. It's all simulated text.
+
+
+------------------------------------------------------------------------
+ATTACK 6: LIVE VIRUS DOWNLOAD (EICAR Test)
+------------------------------------------------------------------------
+
+What happens on screen:
+    - The script writes a test virus file
+    - Windows Defender POPS UP with a real alert
+    - The file is automatically quarantined
+
+What you say:
+
+    "For the final attack, a trojan is downloading a real
+     virus onto the machine. Watch..."
+
+     (pause — wait for Windows Defender to pop up)
+
+    "Windows Defender just detected and quarantined the
+     malware in real-time. This is the EICAR test file —
+     it's an industry standard test virus that every
+     antivirus in the world recognizes. It's completely
+     safe, but it triggers a real antivirus response.
+
+     Our system logged this event and sent it to the
+     dashboard as a critical anomaly."
+
+    NOTE: The EICAR test file is an industry standard
+    from the European Institute for Computer Antivirus
+    Research. It is 100% safe. It exists specifically
+    to test antivirus software.
+
+
+================================================================================
+PART 5: AFTER THE ATTACKS — SHOW THE DASHBOARD
+================================================================================
+
+Switch to your browser (https://ai-logwatch.me) and say:
+
+    "Now let's look at our dashboard. Every single attack
+     we just saw — the cryptominer, the ransomware, the
+     credential theft, the data exfiltration, the reverse
+     shell, and the virus — all 19 events were detected
+     by our AI model, classified by severity level, and
+     are displayed here in real-time.
+
+     I can click on any anomaly to see the full details."
+
+Then click on one anomaly and click "Ask AI":
+
+    "Our AI diagnostic assistant can analyze any anomaly.
+     I'll ask it about this one...
+
+     (wait for the AI response)
+
+     It explains exactly what happened, how dangerous it is,
+     and what steps to take to fix it. This is powered by
+     Llama 3.3, a 70-billion parameter AI model."
+
+
+================================================================================
+PART 6: KEY POINTS TO MENTION IF THE JURY ASKS QUESTIONS
+================================================================================
+
+Q: "Is this safe? Did you actually hack the machine?"
+A: "Everything is a simulation. The cryptominer CPU spike
+    is temporary (8 seconds). The ransomware encrypts fake
+    files that are deleted at the end. The passwords are
+    fake. No data leaves the machine. The only real thing
+    is the EICAR test virus, which is an industry standard
+    specifically designed for testing — it cannot harm
+    anything."
+
+Q: "What AI model do you use?"
+A: "We use two AI models:
+    1. A custom-trained anomaly detection model (scikit-learn)
+       that classifies each log as normal or anomaly based on
+       CPU usage, RAM usage, error patterns, and log content.
+    2. Llama 3.3 70B via Groq for the diagnostic chatbot
+       that explains anomalies in natural language."
+
+Q: "Can this work on other machines?"
+A: "Yes. The agent can be installed on any Windows machine
+    with: pip install logwatch-ai. Then you configure it
+    with your API key and it starts monitoring automatically.
+    All data is sent to our cloud backend."
+
+Q: "What technologies did you use?"
+A: "Backend: Python, FastAPI, PostgreSQL, scikit-learn
+    Frontend: React, Vite, Chart.js
+    Cloud: Render (hosting), Groq (AI inference)
+    Agent: Python package (logwatch-ai on PyPI)
+    Domain: ai-logwatch.me"
+
+Q: "How does the anomaly detection work?"
+A: "The agent collects Windows Event Logs plus system
+    metrics (CPU, RAM) every 5 seconds. It sends them
+    to our backend. Our AI model analyzes the combination
+    of log level, message content, CPU percentage, and
+    RAM percentage to decide if something is abnormal.
+    If it detects an anomaly, it shows up on the dashboard
+    and sends an email alert to the admin."
+
+
+================================================================================
+SUMMARY — YOUR DEMO IN 5 STEPS
+================================================================================
+
+1. Open 3 windows: Agent, Attack terminal, Dashboard browser
+2. Run the agent:
+       cd C:\Users\ASUS\Downloads\anomaly-detect-system-ai-main
+       & "C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe" -m logwatch_ai
+3. Run the attacks:
+       powershell -ExecutionPolicy Bypass -File .\test_attack.ps1
+4. Talk while the attacks run (use the scripts above)
+5. Switch to the dashboard and show the detected anomalies
+
+Total demo time: 3-4 minutes
+
+================================================================================
+                           GOOD LUCK! YOU'VE GOT THIS!
+================================================================================

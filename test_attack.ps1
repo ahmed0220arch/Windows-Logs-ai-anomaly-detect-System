@@ -20,7 +20,7 @@ Write-Host $banner -ForegroundColor Red
 Write-Host "  LOGWATCH AI — ADVANCED CYBER ATTACK SIMULATION" -ForegroundColor White
 Write-Host "  ================================================" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  This script launches 6 realistic attack simulations." -ForegroundColor Gray
+Write-Host "  This script launches 5 realistic attack simulations." -ForegroundColor Gray
 Write-Host "  Each attack creates VISIBLE system activity (check Task Manager!)" -ForegroundColor Gray
 Write-Host "  The LogWatch AI Agent will detect and report every anomaly." -ForegroundColor Gray
 Write-Host ""
@@ -33,7 +33,7 @@ Start-Sleep -Seconds 3
 # ────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 1/6: CRYPTOMINER MALWARE (XMRig)                       ║" -ForegroundColor Red
+Write-Host "║  ATTACK 1/5: CRYPTOMINER MALWARE (XMRig)                       ║" -ForegroundColor Red
 Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -72,7 +72,7 @@ Start-Sleep -Seconds 3
 # ATTACK 2: RANSOMWARE — FILE ENCRYPTION
 # ────────────────────────────────────────────────────────────────
 Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 2/6: RANSOMWARE (LockBit 4.0 Simulation)              ║" -ForegroundColor Red
+Write-Host "║  ATTACK 2/5: RANSOMWARE (LockBit 4.0 Simulation)              ║" -ForegroundColor Red
 Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -152,7 +152,7 @@ Start-Sleep -Seconds 5
 # ATTACK 3: CREDENTIAL DUMPING (Mimikatz-style)
 # ────────────────────────────────────────────────────────────────
 Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 3/6: CREDENTIAL THEFT (Mimikatz Memory Dump)           ║" -ForegroundColor Red
+Write-Host "║  ATTACK 3/5: CREDENTIAL THEFT (Mimikatz Memory Dump)           ║" -ForegroundColor Red
 Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -204,7 +204,7 @@ Start-Sleep -Seconds 5
 # ATTACK 4: DATA EXFILTRATION — MASSIVE NETWORK UPLOAD
 # ────────────────────────────────────────────────────────────────
 Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 4/6: DATA EXFILTRATION (Covert Upload to C2 Server)    ║" -ForegroundColor Red
+Write-Host "║  ATTACK 4/5: DATA EXFILTRATION (Covert Upload to C2 Server)    ║" -ForegroundColor Red
 Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -261,7 +261,7 @@ Start-Sleep -Seconds 5
 # ATTACK 5: REVERSE SHELL & PERSISTENCE
 # ────────────────────────────────────────────────────────────────
 Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 5/6: REVERSE SHELL & PERSISTENCE BACKDOOR             ║" -ForegroundColor Red
+Write-Host "║  ATTACK 5/5: REVERSE SHELL & PERSISTENCE BACKDOOR             ║" -ForegroundColor Red
 Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -315,62 +315,6 @@ Start-Sleep -Seconds 3
 
 
 # ────────────────────────────────────────────────────────────────
-# ATTACK 6: LIVE VIRUS DOWNLOAD (EICAR Test File)
-# ────────────────────────────────────────────────────────────────
-Write-Host "╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor Red
-Write-Host "║  ATTACK 6/6: LIVE MALWARE DOWNLOAD (EICAR Test Virus)          ║" -ForegroundColor Red
-Write-Host "╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor Red
-Write-Host ""
-Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
-Write-Host "  A trojan downloader is fetching a malware payload from" -ForegroundColor White
-Write-Host "  the internet. We use the EICAR test file — an industry-" -ForegroundColor White
-Write-Host "  standard 'safe virus' recognized by EVERY antivirus in" -ForegroundColor White
-Write-Host "  the world. It is completely harmless but will trigger" -ForegroundColor White
-Write-Host "  a REAL Windows Defender alert on screen." -ForegroundColor White
-Write-Host ""
-Write-Host "  >> Watch for the Windows Security notification popup!" -ForegroundColor Yellow
-Write-Host ""
-
-Write-Host "  [*] Downloading malware payload from remote server..." -ForegroundColor Green
-Start-Sleep -Seconds 1
-
-# The EICAR test string — every antivirus on earth detects this as malware
-# It is the official test file from eicar.org — 100% safe, 0% harmful
-$eicarString = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
-$eicarPath = "$env:TEMP\totally_not_a_virus.exe"
-
-try {
-    # Write the EICAR test file — Windows Defender should instantly detect and quarantine it
-    [System.IO.File]::WriteAllText($eicarPath, $eicarString)
-    Write-Host "  [*] Malware payload written to: $eicarPath" -ForegroundColor Red
-    Start-Sleep -Seconds 3
-    
-    if (Test-Path $eicarPath) {
-        Write-Host "  [!] WARNING: Antivirus did NOT detect the payload!" -ForegroundColor DarkYellow
-        Write-Host "  [*] Cleaning up manually..." -ForegroundColor Gray
-        Remove-Item $eicarPath -Force -ErrorAction SilentlyContinue
-    } else {
-        Write-Host "  [✓] Windows Defender DETECTED and QUARANTINED the malware!" -ForegroundColor Green
-        Write-Host "  [✓] This proves real-time protection is working." -ForegroundColor Green
-    }
-} catch {
-    Write-Host "  [✓] Windows Defender BLOCKED the malware before it could be written!" -ForegroundColor Green
-    Write-Host "  [✓] Real-time protection intercepted the file creation." -ForegroundColor Green
-}
-
-# Inject event logs
-eventcreate /t ERROR /id 444 /l application /d "MALWARE DETECTED: Trojan downloader fetched payload from hxxps://malware-cdn.darkweb.ru/payload.exe. File written to TEMP directory. Windows Defender quarantine triggered." | Out-Null
-eventcreate /t ERROR /id 444 /l system /d "CRITICAL: Windows Defender Real-Time Protection detected 'Trojan:Win32/EicarTest' in C:\Users\TEMP\totally_not_a_virus.exe. Threat severity: SEVERE. Action taken: Quarantine." | Out-Null
-eventcreate /t ERROR /id 444 /l application /d "ALERT: Outbound connection to known malware distribution server detected. URL: hxxps://malware-cdn.darkweb.ru. IP: 91.215.85.22 (Russia). Threat intelligence match: 98% confidence." | Out-Null
-
-Write-Host ""
-Write-Host "  [✓] Virus download simulation complete." -ForegroundColor Green
-Write-Host "  [✓] The EICAR file is an industry-standard safe test — zero risk." -ForegroundColor Green
-Write-Host ""
-Start-Sleep -Seconds 3
-
-
-# ────────────────────────────────────────────────────────────────
 # FINAL SUMMARY
 # ────────────────────────────────────────────────────────────────
 Write-Host ""
@@ -383,9 +327,8 @@ Write-Host "║   ✓ Attack 2: Ransomware (LockBit 4.0) — 8 files encrypted  
 Write-Host "║   ✓ Attack 3: Credential Theft (Mimikatz) — 4 passwords       ║" -ForegroundColor White
 Write-Host "║   ✓ Attack 4: Data Exfiltration — 2.3 GB to C2 server        ║" -ForegroundColor White
 Write-Host "║   ✓ Attack 5: Reverse Shell — Full system compromise          ║" -ForegroundColor White
-Write-Host "║   ✓ Attack 6: Live Virus — Windows Defender triggered!        ║" -ForegroundColor White
 Write-Host "║                                                                ║" -ForegroundColor Cyan
-Write-Host "║   Total event logs injected: 19                               ║" -ForegroundColor Yellow
+Write-Host "║   Total event logs injected: 16                               ║" -ForegroundColor Yellow
 Write-Host "║   The LogWatch AI Agent is now analyzing all anomalies.       ║" -ForegroundColor Yellow
 Write-Host "║                                                                ║" -ForegroundColor Cyan
 Write-Host "║   >> Go to https://ai-logwatch.me to see the results! <<      ║" -ForegroundColor Green
