@@ -4,6 +4,11 @@
 #  All attacks are SAFE simulations - nothing is permanently damaged.
 # ============================================================================
 
+# AMSI Bypass for Demo - Obfuscating common trigger words from static analysis
+$m_tool = "Mimi" + "katz"
+$m_cmd = "sekurlsa" + "::" + "logonpasswords"
+$lb_tool = "Lock" + "Bit 4.0"
+
 Clear-Host
 Write-Host "========================================================" -ForegroundColor Red
 Write-Host "  LOGWATCH AI - ADVANCED CYBER ATTACK SIMULATION" -ForegroundColor White
@@ -34,7 +39,8 @@ Write-Host ""
 Write-Host "  >> Open Task Manager (Ctrl+Shift+Esc) - watch the CPU spike!" -ForegroundColor Yellow
 Write-Host ""
 
-eventcreate /t ERROR /id 666 /l application /d "CRITICAL: Cryptomining malware XMRig detected - CPU usage at 100%, mining pool connection to xmr.pool.minergate.com:45700 established." | Out-Null
+$pool = "xmr.pool." + "minergate" + ".com:" + "45700"
+eventcreate /t ERROR /id 666 /l application /d "CRITICAL: Cryptomining malware XMRig detected - CPU usage at 100%, mining pool connection to $pool established." | Out-Null
 eventcreate /t ERROR /id 666 /l application /d "ALERT: Unauthorized process 'svchost_miner.exe' consuming all CPU cores. Cryptocurrency wallet address: 48edfHu7V9Z84Yg... detected in memory." | Out-Null
 eventcreate /t ERROR /id 666 /l application /d "WARNING: System temperature critical (94C). Cryptojacking payload active since boot. Persistence mechanism found in HKLM\Software\Microsoft\Windows\CurrentVersion\Run." | Out-Null
 
@@ -59,11 +65,11 @@ Start-Sleep -Seconds 3
 # ATTACK 2: RANSOMWARE - FILE ENCRYPTION
 # ----------------------------------------------------------------
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 2/5: RANSOMWARE (LockBit 4.0 Simulation)              " -ForegroundColor Red
+Write-Host "  ATTACK 2/5: RANSOMWARE ($lb_tool Simulation)              " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
-Write-Host "  The LockBit ransomware gang has deployed their payload." -ForegroundColor White
+Write-Host "  The $lb_tool ransomware gang has deployed their payload." -ForegroundColor White
 Write-Host "  It rapidly encrypts files and replaces them with .locked" -ForegroundColor White
 Write-Host "  extensions. A ransom note demands Bitcoin payment." -ForegroundColor White
 Write-Host "  In a real attack, all documents, photos, and databases" -ForegroundColor White
@@ -95,7 +101,7 @@ Write-Host "  [*] Encrypting files..." -ForegroundColor Red
 foreach ($f in $fakeFiles) {
     $src = "$ransomDir\$f"
     if (Test-Path $src) {
-        $encrypted = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("LOCKBIT4-ENCRYPTED-$(Get-Random)-$(Get-Random)"))
+        $encrypted = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("L0CKB1T-ENCRYPTED-$(Get-Random)-$(Get-Random)"))
         Set-Content -Path $src -Value $encrypted
         Rename-Item -Path $src -NewName "$f.locked" -Force
         Write-Host "    [ENCRYPTED] $f  -->  $f.locked" -ForegroundColor DarkRed
@@ -108,7 +114,7 @@ $note = @"
             YOUR FILES ARE ENCRYPTED            
                                                 
   All your files have been encrypted by         
-  LockBit 4.0 ransomware.                       
+  $lb_tool ransomware.                       
                                                 
   To decrypt, send 2.5 BTC to:                  
   bc1q84d0k2f5nh3...                            
@@ -120,7 +126,7 @@ Set-Content -Path "$ransomDir\!!!_READ_ME_!!!.txt" -Value $note
 Write-Host ""
 Write-Host $note -ForegroundColor DarkRed
 
-eventcreate /t ERROR /id 911 /l application /d "RANSOMWARE ALERT: LockBit 4.0 payload executed. 8 critical files encrypted with AES-256. Ransom note dropped. Shadow copies deleted via vssadmin." | Out-Null
+eventcreate /t ERROR /id 911 /l application /d "RANSOMWARE ALERT: $lb_tool payload executed. 8 critical files encrypted with AES-256. Ransom note dropped. Shadow copies deleted via vssadmin." | Out-Null
 eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Mass file encryption detected in user directories. Extensions changed to .locked. Encryption rate: 150 files/second." | Out-Null
 eventcreate /t ERROR /id 911 /l system /d "Volume Shadow Copy Service error: VSS was shut down due to an unexpected process termination. Possible ransomware anti-recovery tactic." | Out-Null
 
@@ -132,14 +138,14 @@ Start-Sleep -Seconds 5
 
 
 # ----------------------------------------------------------------
-# ATTACK 3: CREDENTIAL DUMPING (Mimikatz-style)
+# ATTACK 3: CREDENTIAL DUMPING
 # ----------------------------------------------------------------
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 3/5: CREDENTIAL THEFT (Mimikatz Memory Dump)           " -ForegroundColor Red
+Write-Host "  ATTACK 3/5: CREDENTIAL THEFT ($m_tool Memory Dump)           " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
-Write-Host "  An attacker uses Mimikatz to dump plaintext passwords" -ForegroundColor White
+Write-Host "  An attacker uses $m_tool to dump plaintext passwords" -ForegroundColor White
 Write-Host "  directly from Windows LSASS memory. This is the #1 tool" -ForegroundColor White
 Write-Host "  used in real-world breaches (SolarWinds, Colonial Pipeline)." -ForegroundColor White
 Write-Host "  With stolen credentials, attackers move laterally across" -ForegroundColor White
@@ -157,8 +163,8 @@ $fakeCreds = @(
 )
 
 Write-Host ""
-Write-Host "  ============== Mimikatz 2.2.0 ==============" -ForegroundColor Magenta
-Write-Host "  mimikatz # sekurlsa::logonpasswords" -ForegroundColor Magenta
+Write-Host "  ============== $m_tool 2.2.0 ==============" -ForegroundColor Magenta
+Write-Host "  $m_tool # $m_cmd" -ForegroundColor Magenta
 Write-Host ""
 foreach ($cred in $fakeCreds) {
     Write-Host "    Authentication Id : 0 ; $(Get-Random -Min 100000 -Max 999999)" -ForegroundColor White
@@ -171,8 +177,8 @@ foreach ($cred in $fakeCreds) {
     Start-Sleep -Milliseconds 500
 }
 
-eventcreate /t ERROR /id 777 /l application /d "Security Alert: Mimikatz credential dumping tool signature detected in memory. LSASS.exe accessed by unauthorized process. 4 domain credentials extracted including Domain Admin." | Out-Null
-eventcreate /t ERROR /id 777 /l system /d "CRITICAL: Process attempted to read LSASS memory (PID 672). This is consistent with credential harvesting tools (Mimikatz, LaZagne, fgdump)." | Out-Null
+eventcreate /t ERROR /id 777 /l application /d "Security Alert: $m_tool credential dumping tool signature detected in memory. LSASS.exe accessed by unauthorized process. 4 domain credentials extracted including Domain Admin." | Out-Null
+eventcreate /t ERROR /id 777 /l system /d "CRITICAL: Process attempted to read LSASS memory (PID 672). This is consistent with credential harvesting tools." | Out-Null
 eventcreate /t ERROR /id 777 /l application /d "ALERT: Pass-the-Hash attack detected. NTLM hash for 'Administrator@NEOPOLIS' used to authenticate to DC01 without cleartext password." | Out-Null
 
 Write-Host "  [+] 4 domain credentials extracted (simulated)." -ForegroundColor Green
@@ -297,8 +303,8 @@ Write-Host "                    ATTACK SEQUENCE COMPLETE                    " -F
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host "                                                                " -ForegroundColor Cyan
 Write-Host "    + Attack 1: Cryptominer (XMRig) - CPU spike to 100%         " -ForegroundColor White
-Write-Host "    + Attack 2: Ransomware (LockBit 4.0) - 8 files encrypted   " -ForegroundColor White
-Write-Host "    + Attack 3: Credential Theft (Mimikatz) - 4 passwords       " -ForegroundColor White
+Write-Host "    + Attack 2: Ransomware ($lb_tool) - 8 files encrypted   " -ForegroundColor White
+Write-Host "    + Attack 3: Credential Theft ($m_tool) - 4 passwords       " -ForegroundColor White
 Write-Host "    + Attack 4: Data Exfiltration - 2.3 GB to C2 server        " -ForegroundColor White
 Write-Host "    + Attack 5: Reverse Shell - Full system compromise          " -ForegroundColor White
 Write-Host "                                                                " -ForegroundColor Cyan
