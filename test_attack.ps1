@@ -14,20 +14,22 @@ Write-Host "========================================================" -Foregroun
 Write-Host "  LOGWATCH AI - ADVANCED CYBER ATTACK SIMULATION" -ForegroundColor White
 Write-Host "========================================================" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  This script launches 5 realistic attack simulations." -ForegroundColor Gray
+Write-Host "  This script launches 4 realistic attack simulations." -ForegroundColor Gray
 Write-Host "  Each attack creates VISIBLE system activity (check Task Manager!)" -ForegroundColor Gray
 Write-Host "  The LogWatch AI Agent will detect and report every anomaly." -ForegroundColor Gray
+Write-Host "  Each attack will wait for you to press ENTER." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  [!] Make sure the LogWatch Agent is running in another window." -ForegroundColor Yellow
 Write-Host ""
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 1
 
 # ----------------------------------------------------------------
 # ATTACK 1: CRYPTOMINER - CPU SPIKE
 # ----------------------------------------------------------------
 Write-Host ""
+Read-Host "  [!] Press ENTER to launch Attack 1 (Cryptominer)..."
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 1/5: CRYPTOMINER MALWARE (XMRig)                       " -ForegroundColor Red
+Write-Host "  ATTACK 1/4: CRYPTOMINER MALWARE (XMRig)                       " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -43,6 +45,8 @@ $pool = "xmr.pool." + "minergate" + ".com:" + "45700"
 eventcreate /t ERROR /id 666 /l application /d "CRITICAL: Cryptomining malware XMRig detected - CPU usage at 100%, mining pool connection to $pool established." | Out-Null
 eventcreate /t ERROR /id 666 /l application /d "ALERT: Unauthorized process 'svchost_miner.exe' consuming all CPU cores. Cryptocurrency wallet address: 48edfHu7V9Z84Yg... detected in memory." | Out-Null
 eventcreate /t ERROR /id 666 /l application /d "WARNING: System temperature critical (94C). Cryptojacking payload active since boot. Persistence mechanism found in HKLM\Software\Microsoft\Windows\CurrentVersion\Run." | Out-Null
+eventcreate /t ERROR /id 666 /l application /d "ALERT: Unusual high CPU utilization over 95% sustained for more than 5 minutes by unverified binary." | Out-Null
+eventcreate /t ERROR /id 666 /l application /d "CRITICAL: Suspicious PowerShell process initiated hidden background task for network communication." | Out-Null
 
 Write-Host "  [*] Launching cryptominer simulation..." -ForegroundColor Green
 $cpuJobs = @()
@@ -58,14 +62,15 @@ Start-Sleep -Seconds 8
 $cpuJobs | Stop-Job -PassThru | Remove-Job -Force
 Write-Host "  [+] Cryptominer killed. CPU returned to normal." -ForegroundColor Green
 Write-Host ""
-Start-Sleep -Seconds 3
 
 
 # ----------------------------------------------------------------
 # ATTACK 2: RANSOMWARE - FILE ENCRYPTION
 # ----------------------------------------------------------------
+Write-Host ""
+Read-Host "  [!] Press ENTER to launch Attack 2 (Ransomware)..."
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 2/5: RANSOMWARE ($lb_tool Simulation)              " -ForegroundColor Red
+Write-Host "  ATTACK 2/4: RANSOMWARE ($lb_tool Simulation)              " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -129,19 +134,23 @@ Write-Host $note -ForegroundColor DarkRed
 eventcreate /t ERROR /id 911 /l application /d "RANSOMWARE ALERT: $lb_tool payload executed. 8 critical files encrypted with AES-256. Ransom note dropped. Shadow copies deleted via vssadmin." | Out-Null
 eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Mass file encryption detected in user directories. Extensions changed to .locked. Encryption rate: 150 files/second." | Out-Null
 eventcreate /t ERROR /id 911 /l system /d "Volume Shadow Copy Service error: VSS was shut down due to an unexpected process termination. Possible ransomware anti-recovery tactic." | Out-Null
+eventcreate /t ERROR /id 911 /l application /d "ALERT: Multiple rapid file rename operations detected from single process. Suspected ransomware behavior." | Out-Null
+eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Unauthorized access to protected user documents detected by unknown process ID 4021." | Out-Null
+
 
 Write-Host ""
 Write-Host "  [+] Ransomware simulation complete. Files at: $ransomDir" -ForegroundColor Green
 Write-Host "  [+] All files are fake - no real data was harmed." -ForegroundColor Green
 Write-Host ""
-Start-Sleep -Seconds 5
 
 
 # ----------------------------------------------------------------
 # ATTACK 3: CREDENTIAL DUMPING
 # ----------------------------------------------------------------
+Write-Host ""
+Read-Host "  [!] Press ENTER to launch Attack 3 (Credential Theft)..."
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 3/5: CREDENTIAL THEFT ($m_tool Memory Dump)           " -ForegroundColor Red
+Write-Host "  ATTACK 3/4: CREDENTIAL THEFT ($m_tool Memory Dump)           " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -180,71 +189,21 @@ foreach ($cred in $fakeCreds) {
 eventcreate /t ERROR /id 777 /l application /d "Security Alert: $m_tool credential dumping tool signature detected in memory. LSASS.exe accessed by unauthorized process. 4 domain credentials extracted including Domain Admin." | Out-Null
 eventcreate /t ERROR /id 777 /l system /d "CRITICAL: Process attempted to read LSASS memory (PID 672). This is consistent with credential harvesting tools." | Out-Null
 eventcreate /t ERROR /id 777 /l application /d "ALERT: Pass-the-Hash attack detected. NTLM hash for 'Administrator@NEOPOLIS' used to authenticate to DC01 without cleartext password." | Out-Null
+eventcreate /t ERROR /id 777 /l application /d "WARNING: High number of failed login attempts followed by successful administrative logon. Possible brute-force or credential stuffing." | Out-Null
+eventcreate /t ERROR /id 777 /l system /d "CRITICAL: Debug privileges requested by unauthorized user process. Potential privilege escalation underway." | Out-Null
 
 Write-Host "  [+] 4 domain credentials extracted (simulated)." -ForegroundColor Green
 Write-Host "  [+] No real credentials were accessed." -ForegroundColor Green
 Write-Host ""
-Start-Sleep -Seconds 5
 
 
 # ----------------------------------------------------------------
-# ATTACK 4: DATA EXFILTRATION - MASSIVE NETWORK UPLOAD
+# ATTACK 4: REVERSE SHELL AND PERSISTENCE
 # ----------------------------------------------------------------
+Write-Host ""
+Read-Host "  [!] Press ENTER to launch Attack 4 (Reverse Shell)..."
 Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 4/5: DATA EXFILTRATION (Covert Upload to C2 Server)    " -ForegroundColor Red
-Write-Host "==================================================================" -ForegroundColor Red
-Write-Host ""
-Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
-Write-Host "  After stealing credentials, the attacker exfiltrates" -ForegroundColor White
-Write-Host "  sensitive company data to an external Command and Control" -ForegroundColor White
-Write-Host "  server. They use DNS tunneling and encrypted HTTPS to" -ForegroundColor White
-Write-Host "  bypass the firewall. 2.3 GB of data is being uploaded" -ForegroundColor White
-Write-Host "  including database dumps, source code, and client records." -ForegroundColor White
-Write-Host ""
-
-Write-Host "  [*] Establishing covert C2 channel to 185.220.101.42..." -ForegroundColor Green
-Start-Sleep -Seconds 1
-Write-Host "  [*] C2 connection established via DNS tunneling." -ForegroundColor Green
-Write-Host ""
-
-$totalMB = 2300
-$steps = 20
-$mbPerStep = $totalMB / $steps
-
-for ($i = 1; $i -le $steps; $i++) {
-    $currentMB = [math]::Round($mbPerStep * $i)
-    $pct = [math]::Round(($i / $steps) * 100)
-    $bar = ("#" * $i) + ("." * ($steps - $i))
-    $fileName = @("database_dump.sql","client_records.csv","source_code.tar.gz","financial_reports.xlsx","email_archive.pst","vpn_configs.ovpn","ssh_keys.tar","api_secrets.env")[$i % 8]
-    Write-Host "`r  Uploading: [$bar] $pct%  ($currentMB MB / $totalMB MB)  $fileName    " -ForegroundColor Red -NoNewline
-    Start-Sleep -Milliseconds 400
-}
-Write-Host ""
-Write-Host ""
-
-Write-Host "  [*] Buffering exfiltrated data in memory..." -ForegroundColor Green
-$memoryBlob = New-Object byte[] (50MB)
-[System.Random]::new().NextBytes($memoryBlob)
-Start-Sleep -Seconds 3
-
-eventcreate /t ERROR /id 888 /l application /d "DATA EXFILTRATION ALERT: 2.3 GB of data uploaded to external IP 185.220.101.42 (Tor exit node). DNS tunneling detected on port 53." | Out-Null
-eventcreate /t ERROR /id 888 /l application /d "CRITICAL: Outbound data transfer anomaly - 2,300 MB uploaded in 15 minutes to unknown external server. Files include database dumps and SSH private keys." | Out-Null
-eventcreate /t ERROR /id 888 /l system /d "ALERT: Unusual DNS query volume detected. 45,000 TXT record queries to suspicious domain c2.darknet-relay.ru in the last 10 minutes. Possible DNS tunneling exfiltration." | Out-Null
-
-$memoryBlob = $null
-[GC]::Collect()
-
-Write-Host "  [+] 2.3 GB exfiltration simulated." -ForegroundColor Green
-Write-Host "  [+] No real data was sent anywhere." -ForegroundColor Green
-Write-Host ""
-Start-Sleep -Seconds 5
-
-
-# ----------------------------------------------------------------
-# ATTACK 5: REVERSE SHELL AND PERSISTENCE
-# ----------------------------------------------------------------
-Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 5/5: REVERSE SHELL AND PERSISTENCE BACKDOOR             " -ForegroundColor Red
+Write-Host "  ATTACK 4/4: REVERSE SHELL AND PERSISTENCE BACKDOOR             " -ForegroundColor Red
 Write-Host "==================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
@@ -287,6 +246,7 @@ eventcreate /t ERROR /id 555 /l application /d "CRITICAL: Reverse shell connecti
 eventcreate /t ERROR /id 555 /l system /d "ALERT: New administrator account 'hacker' created via net.exe. Privilege escalation from standard user to local admin detected." | Out-Null
 eventcreate /t ERROR /id 555 /l application /d "PERSISTENCE BACKDOOR: Registry Run key modified - HKLM\Software\Microsoft\Windows\CurrentVersion\Run\Backdoor points to svchost_bd.exe. Malware will survive reboot." | Out-Null
 eventcreate /t ERROR /id 555 /l system /d "FIREWALL TAMPERING: Windows Defender Firewall disabled across all profiles. System is now fully exposed to external attacks." | Out-Null
+eventcreate /t ERROR /id 555 /l application /d "CRITICAL: Unauthorized scheduled task created to execute malicious payload on system startup." | Out-Null
 
 Write-Host "  [+] Reverse shell and persistence simulated." -ForegroundColor Green
 Write-Host "  [+] No accounts were created. No registry was modified. No firewall was changed." -ForegroundColor Green
@@ -305,10 +265,9 @@ Write-Host "                                                                " -F
 Write-Host "    + Attack 1: Cryptominer (XMRig) - CPU spike to 100%         " -ForegroundColor White
 Write-Host "    + Attack 2: Ransomware ($lb_tool) - 8 files encrypted   " -ForegroundColor White
 Write-Host "    + Attack 3: Credential Theft ($m_tool) - 4 passwords       " -ForegroundColor White
-Write-Host "    + Attack 4: Data Exfiltration - 2.3 GB to C2 server        " -ForegroundColor White
-Write-Host "    + Attack 5: Reverse Shell - Full system compromise          " -ForegroundColor White
+Write-Host "    + Attack 4: Reverse Shell - Full system compromise          " -ForegroundColor White
 Write-Host "                                                                " -ForegroundColor Cyan
-Write-Host "    Total event logs injected: 16                               " -ForegroundColor Yellow
+Write-Host "    Total event logs injected: 20 (5 per attack)                " -ForegroundColor Yellow
 Write-Host "    The LogWatch AI Agent is now analyzing all anomalies.       " -ForegroundColor Yellow
 Write-Host "                                                                " -ForegroundColor Cyan
 Write-Host "    >> Go to https://ai-logwatch.me to see the results! <<      " -ForegroundColor Green
