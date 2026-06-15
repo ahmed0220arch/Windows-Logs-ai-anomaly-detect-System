@@ -223,6 +223,13 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
             # negative score for any explicit ERROR injections to guarantee 100% immediate detection.
             if level.upper() in ["ERROR", "CRITICAL"]:
                 score = -0.5  # Guaranteed anomaly
+            
+            # --- WINDOWS DEFENDER PRIORITY FIX ---
+            # Ensure any log containing "Windows Defender" is INSTANTLY flagged as an anomaly
+            # regardless of what the machine learning model calculates.
+            if "Windows Defender" in message:
+                score = -0.99  # Extreme anomaly score
+
         except Exception as e:
             logger.error(f"Inference Mapping Error: {e}")
             return
