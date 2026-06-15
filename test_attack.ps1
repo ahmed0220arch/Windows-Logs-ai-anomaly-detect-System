@@ -49,17 +49,15 @@ eventcreate /t ERROR /id 666 /l application /d "ALERT: Unusual high CPU utilizat
 eventcreate /t ERROR /id 666 /l application /d "CRITICAL: Suspicious PowerShell process initiated hidden background task for network communication." | Out-Null
 
 Write-Host "  [*] Launching cryptominer simulation..." -ForegroundColor Green
-$cpuJobs = @()
 $coreCount = (Get-CimInstance Win32_Processor).NumberOfLogicalProcessors
+$code = 'while($true){}'
+$procs = @()
 for ($i = 0; $i -lt $coreCount; $i++) {
-    $cpuJobs += Start-Job -ScriptBlock {
-        $end = (Get-Date).AddSeconds(8)
-        while ((Get-Date) -lt $end) { [Math]::Sqrt(12345.6789) | Out-Null }
-    }
+    $procs += Start-Process powershell -ArgumentList "-WindowStyle Hidden -Command `"$code`"" -PassThru
 }
 Write-Host "  [*] CPU at 100% across $coreCount cores - mining simulation active..." -ForegroundColor Red
-Start-Sleep -Seconds 8
-$cpuJobs | Stop-Job -PassThru | Remove-Job -Force
+Start-Sleep -Seconds 7
+$procs | Stop-Process -Force
 Write-Host "  [+] Cryptominer killed. CPU returned to normal." -ForegroundColor Green
 Write-Host ""
 
