@@ -94,11 +94,6 @@ Start-Process explorer.exe $ransomDir
 Start-Sleep -Seconds 2
 
 Write-Host ""
-Write-Host "  ============================================================" -ForegroundColor Yellow
-Write-Host "  >> Show the jury: open a few files, they contain real data! <<" -ForegroundColor Yellow
-Write-Host "  >> Double-click any file to prove they are normal and readable." -ForegroundColor Yellow
-Write-Host "  ============================================================" -ForegroundColor Yellow
-Write-Host ""
 Read-Host "  [!] When ready, press ENTER to launch the ransomware..."
 
 Write-Host ""
@@ -131,11 +126,6 @@ Write-Host ""
 Write-Host $note -ForegroundColor DarkRed
 
 Write-Host ""
-Write-Host "  ============================================================" -ForegroundColor Yellow
-Write-Host "  >> Now show the jury: try to open the SAME files again!    <<" -ForegroundColor Yellow
-Write-Host "  >> They are now encrypted garbage - completely unreadable. <<" -ForegroundColor Yellow
-Write-Host "  ============================================================" -ForegroundColor Yellow
-
 eventcreate /t ERROR /id 911 /l application /d "RANSOMWARE ALERT: $lb_tool payload executed. 8 critical files encrypted with AES-256. Ransom note dropped. Shadow copies deleted via vssadmin." | Out-Null
 eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Mass file encryption detected in user directories. Extensions changed to .locked. Encryption rate: 150 files/second." | Out-Null
 eventcreate /t ERROR /id 911 /l system /d "Volume Shadow Copy Service error: VSS was shut down due to an unexpected process termination. Possible ransomware anti-recovery tactic." | Out-Null
