@@ -79,36 +79,37 @@ Write-Host "  In a real attack, all documents, photos, and databases" -Foregroun
 Write-Host "  become permanently inaccessible without the decryption key." -ForegroundColor White
 Write-Host ""
 
-$ransomDir = "$env:TEMP\LogWatch_RansomwareDemo"
-New-Item -ItemType Directory -Path $ransomDir -Force | Out-Null
+$ransomDir = "$env:USERPROFILE\Desktop\Company_Files"
+$backupDir = "$env:USERPROFILE\Desktop\Company_Files_Backup"
 
-$fakeFiles = @(
-    "Q4_Financial_Report.xlsx",
-    "Employee_Database.csv",
-    "Client_Contracts_2026.docx",
-    "Server_Backup_Config.json",
-    "CEO_Inbox_Export.pst",
-    "Production_Database_Dump.sql",
-    "HR_Salary_Records.xlsx",
-    "Source_Code_Repository.zip"
-)
-
-Write-Host "  [*] Creating target files..." -ForegroundColor Green
-foreach ($f in $fakeFiles) {
-    Set-Content -Path "$ransomDir\$f" -Value "CONFIDENTIAL COMPANY DATA - $(Get-Date)"
+Write-Host "  [*] Restoring fresh company files for demo..." -ForegroundColor Green
+if (Test-Path $backupDir) {
+    Copy-Item -Path "$backupDir\*" -Destination $ransomDir -Recurse -Force
 }
-
 Start-Sleep -Seconds 1
 
-Write-Host "  [*] Encrypting files..." -ForegroundColor Red
-foreach ($f in $fakeFiles) {
-    $src = "$ransomDir\$f"
-    if (Test-Path $src) {
+Write-Host ""
+Write-Host "  [*] Opening folder so you can see the files..." -ForegroundColor Green
+Start-Process explorer.exe $ransomDir
+Start-Sleep -Seconds 2
+
+Write-Host ""
+Write-Host "  ============================================================" -ForegroundColor Yellow
+Write-Host "  >> Show the jury: open a few files, they contain real data! <<" -ForegroundColor Yellow
+Write-Host "  >> Double-click any file to prove they are normal and readable." -ForegroundColor Yellow
+Write-Host "  ============================================================" -ForegroundColor Yellow
+Write-Host ""
+Read-Host "  [!] When ready, press ENTER to launch the ransomware..."
+
+Write-Host ""
+Write-Host "  [*] RANSOMWARE ACTIVATED - Encrypting all files..." -ForegroundColor Red
+foreach ($f in (Get-ChildItem -Path $ransomDir -File)) {
+    if ($f.Name -ne "!!!_READ_ME_!!!.txt" -and $f.Extension -ne ".locked") {
         $encrypted = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("L0CKB1T-ENCRYPTED-$(Get-Random)-$(Get-Random)"))
-        Set-Content -Path $src -Value $encrypted
-        Rename-Item -Path $src -NewName "$f.locked" -Force
-        Write-Host "    [ENCRYPTED] $f  -->  $f.locked" -ForegroundColor DarkRed
-        Start-Sleep -Milliseconds 300
+        Set-Content -Path $f.FullName -Value $encrypted
+        Rename-Item -Path $f.FullName -NewName "$($f.Name).locked" -Force
+        Write-Host "    [ENCRYPTED] $($f.Name)  -->  $($f.Name).locked" -ForegroundColor DarkRed
+        Start-Sleep -Milliseconds 400
     }
 }
 
@@ -129,6 +130,12 @@ Set-Content -Path "$ransomDir\!!!_READ_ME_!!!.txt" -Value $note
 Write-Host ""
 Write-Host $note -ForegroundColor DarkRed
 
+Write-Host ""
+Write-Host "  ============================================================" -ForegroundColor Yellow
+Write-Host "  >> Now show the jury: try to open the SAME files again!    <<" -ForegroundColor Yellow
+Write-Host "  >> They are now encrypted garbage - completely unreadable. <<" -ForegroundColor Yellow
+Write-Host "  ============================================================" -ForegroundColor Yellow
+
 eventcreate /t ERROR /id 911 /l application /d "RANSOMWARE ALERT: $lb_tool payload executed. 8 critical files encrypted with AES-256. Ransom note dropped. Shadow copies deleted via vssadmin." | Out-Null
 eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Mass file encryption detected in user directories. Extensions changed to .locked. Encryption rate: 150 files/second." | Out-Null
 eventcreate /t ERROR /id 911 /l system /d "Volume Shadow Copy Service error: VSS was shut down due to an unexpected process termination. Possible ransomware anti-recovery tactic." | Out-Null
@@ -137,7 +144,7 @@ eventcreate /t ERROR /id 911 /l application /d "CRITICAL: Unauthorized access to
 
 
 Write-Host ""
-Write-Host "  [+] Ransomware simulation complete. Files at: $ransomDir" -ForegroundColor Green
+Write-Host "  [+] Ransomware simulation complete." -ForegroundColor Green
 Write-Host "  [+] All files are fake - no real data was harmed." -ForegroundColor Green
 Write-Host ""
 
@@ -273,6 +280,5 @@ Write-Host "                                                                " -F
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-Remove-Item -Path "$env:TEMP\LogWatch_RansomwareDemo" -Recurse -Force -ErrorAction SilentlyContinue
-Write-Host "  [Cleanup] Ransomware demo files deleted." -ForegroundColor DarkGray
+Write-Host "  [+] The encrypted files have been left on the Desktop for the jury to see." -ForegroundColor DarkGray
 Write-Host ""
