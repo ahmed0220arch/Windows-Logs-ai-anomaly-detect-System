@@ -82,16 +82,17 @@ Write-Host ""
 $ransomDir = "$env:USERPROFILE\Desktop\Company_Files"
 $backupDir = "$env:USERPROFILE\Desktop\Company_Files_Backup"
 
-if (-not (Test-Path $backupDir)) {
+if (-not (Test-Path $backupDir) -or (Test-Path "$backupDir\Q4_Financial_Report.xlsx")) {
+    if (Test-Path $backupDir) { Remove-Item -Path $backupDir -Recurse -Force | Out-Null }
     New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
-    Set-Content -Path "$backupDir\Q4_Financial_Report.xlsx" -Value "CONFIDENTIAL - Q4 Earnings..."
-    Set-Content -Path "$backupDir\Client_Contracts_2026.docx" -Value "Contract agreements for top 10 enterprise clients..."
-    Set-Content -Path "$backupDir\HR_Salary_Records.xlsx" -Value "Employee names, SSN, and salary details..."
-    Set-Content -Path "$backupDir\Server_Backup_Config.json" -Value "{'db_password': 'admin', 'host': '10.0.0.5'}"
-    Set-Content -Path "$backupDir\Source_Code_Repository.zip" -Value "PK...[Encrypted Source Code Archive]"
-    Set-Content -Path "$backupDir\CEO_Inbox_Export.pst" -Value "Outlook Data File Header..."
-    Set-Content -Path "$backupDir\Production_Database_Dump.sql" -Value "INSERT INTO users (id, password_hash) VALUES..."
-    Set-Content -Path "$backupDir\Board_Meeting_Minutes.pdf" -Value "%PDF-1.4...Acquisition strategy discussion..."
+    Set-Content -Path "$backupDir\Q4_Financial_Report.csv" -Value "Quarter,Revenue,Profit,Growth`r`nQ1,500000,120000,5%`r`nQ2,550000,135000,6%`r`nQ3,600000,150000,8%`r`nQ4,750000,200000,12%"
+    Set-Content -Path "$backupDir\Client_Contracts_2026.txt" -Value "CONFIDENTIAL - Enterprise Agreements 2026`r`n`r`n1. Microsoft Corp - $5M/yr`r`n2. Amazon AWS - $3.2M/yr`r`n3. Google Cloud - $2.1M/yr"
+    Set-Content -Path "$backupDir\HR_Salary_Records.csv" -Value "Employee,Role,Salary,Bonus`r`nJohn Doe,CEO,`$250000,`$50000`r`nJane Smith,CTO,`$220000,`$40000`r`nBob Wilson,Dev,`$120000,`$10000"
+    Set-Content -Path "$backupDir\Server_Backup_Config.json" -Value "{`r`n  `"db_password`": `"admin_prod_99!_secure`",`r`n  `"host`": `"10.0.0.5`",`r`n  `"backup_interval`": `"24h`"`r`n}"
+    Set-Content -Path "$backupDir\Source_Code_Repository.log" -Value "2026-06-18 10:00:00 - GIT COMMIT: Added new encryption module.`r`n2026-06-18 11:30:00 - GIT PUSH: Successfully deployed to production."
+    Set-Content -Path "$backupDir\CEO_Inbox_Export.txt" -Value "From: CEO@company.com`r`nTo: Board of Directors`r`nSubject: Upcoming Merger`r`n`r`nPlease keep this strictly confidential. We are acquiring..."
+    Set-Content -Path "$backupDir\Production_Database_Dump.sql" -Value "CREATE TABLE users (id INT, hash VARCHAR);`r`nINSERT INTO users VALUES (1, 'e19ccf75ee54e06b06a5907af13cef42');`r`nINSERT INTO users VALUES (2, 'fc525c9683e8fe067095ba2ddc971889');"
+    Set-Content -Path "$backupDir\Board_Meeting_Minutes.txt" -Value "MEETING MINUTES - June 2026`r`n`r`nAttendees: Board of Directors`r`nTopic: Q4 Revenue exceeded expectations. Bonus pool expanded."
 }
 
 Write-Host "  [*] Restoring fresh company files for demo..." -ForegroundColor Green
