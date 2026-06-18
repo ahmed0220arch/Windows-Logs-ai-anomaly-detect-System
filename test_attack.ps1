@@ -192,62 +192,6 @@ Write-Host "  [+] No real credentials were accessed." -ForegroundColor Green
 Write-Host ""
 
 
-# ----------------------------------------------------------------
-# ATTACK 4: REVERSE SHELL AND PERSISTENCE
-# ----------------------------------------------------------------
-Write-Host ""
-Read-Host "  [!] Press ENTER to launch Attack 4 (Reverse Shell)..."
-Write-Host "==================================================================" -ForegroundColor Red
-Write-Host "  ATTACK 4/4: REVERSE SHELL AND PERSISTENCE BACKDOOR             " -ForegroundColor Red
-Write-Host "==================================================================" -ForegroundColor Red
-Write-Host ""
-Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
-Write-Host "  The attacker opens a reverse shell - a hidden connection" -ForegroundColor White
-Write-Host "  that gives them full remote control of the machine." -ForegroundColor White
-Write-Host "  They also install a persistence backdoor in the Windows" -ForegroundColor White
-Write-Host "  Registry so they can reconnect even after a reboot." -ForegroundColor White
-Write-Host "  This is the final stage of a full system compromise." -ForegroundColor White
-Write-Host ""
-
-Write-Host "  [*] Opening reverse shell to attacker 45.33.32.156:4444..." -ForegroundColor Green
-Start-Sleep -Seconds 1
-
-$shellCommands = @(
-    @{Cmd="whoami /priv"; Out="NEOPOLIS\Administrator - SeDebugPrivilege: Enabled"},
-    @{Cmd="net user hacker P@ss123 /add"; Out="The command completed successfully."},
-    @{Cmd="net localgroup Administrators hacker /add"; Out="The command completed successfully."},
-    @{Cmd="netsh advfirewall set allprofiles state off"; Out="Ok. (simulated - firewall NOT actually changed)"},
-    @{Cmd="reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Run /v Backdoor /d C:\Windows\Temp\svchost_bd.exe"; Out="(simulated - no registry was modified)"}
-)
-
-Write-Host ""
-Write-Host "  --------------------------------------------------" -ForegroundColor DarkGray
-Write-Host "    ATTACKER REVERSE SHELL SESSION                  " -ForegroundColor DarkGray
-Write-Host "  --------------------------------------------------" -ForegroundColor DarkGray
-foreach ($sc in $shellCommands) {
-    Write-Host "  C:\Windows\system32> " -ForegroundColor Gray -NoNewline
-    foreach ($char in $sc.Cmd.ToCharArray()) {
-        Write-Host $char -ForegroundColor White -NoNewline
-        Start-Sleep -Milliseconds 30
-    }
-    Write-Host ""
-    Start-Sleep -Milliseconds 300
-    Write-Host "  $($sc.Out)" -ForegroundColor Yellow
-    Write-Host ""
-    Start-Sleep -Milliseconds 500
-}
-
-eventcreate /t ERROR /id 555 /l application /d "CRITICAL: Reverse shell connection detected to external IP 45.33.32.156:4444. PowerShell process spawned with SYSTEM privileges. Full remote access established." | Out-Null
-eventcreate /t ERROR /id 555 /l system /d "ALERT: New administrator account 'hacker' created via net.exe. Privilege escalation from standard user to local admin detected." | Out-Null
-eventcreate /t ERROR /id 555 /l application /d "PERSISTENCE BACKDOOR: Registry Run key modified - HKLM\Software\Microsoft\Windows\CurrentVersion\Run\Backdoor points to svchost_bd.exe. Malware will survive reboot." | Out-Null
-eventcreate /t ERROR /id 555 /l system /d "FIREWALL TAMPERING: Windows Defender Firewall disabled across all profiles. System is now fully exposed to external attacks." | Out-Null
-eventcreate /t ERROR /id 555 /l application /d "CRITICAL: Unauthorized scheduled task created to execute malicious payload on system startup." | Out-Null
-
-Write-Host "  [+] Reverse shell and persistence simulated." -ForegroundColor Green
-Write-Host "  [+] No accounts were created. No registry was modified. No firewall was changed." -ForegroundColor Green
-Write-Host ""
-Start-Sleep -Seconds 3
-
 
 # ----------------------------------------------------------------
 # FINAL SUMMARY
@@ -258,11 +202,10 @@ Write-Host "                    ATTACK SEQUENCE COMPLETE                    " -F
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host "                                                                " -ForegroundColor Cyan
 Write-Host "    + Attack 1: Cryptominer (XMRig) - CPU spike to 100%         " -ForegroundColor White
-Write-Host "    + Attack 2: Ransomware ($lb_tool) - 8 files encrypted   " -ForegroundColor White
-Write-Host "    + Attack 3: Credential Theft ($m_tool) - 4 passwords       " -ForegroundColor White
-Write-Host "    + Attack 4: Reverse Shell - Full system compromise          " -ForegroundColor White
+Write-Host "    + Attack 2: Ransomware ($lb_tool) - 8 files encrypted       " -ForegroundColor White
+Write-Host "    + Attack 3: Credential Theft ($m_tool) - 4 passwords        " -ForegroundColor White
 Write-Host "                                                                " -ForegroundColor Cyan
-Write-Host "    Total event logs injected: 20 (5 per attack)                " -ForegroundColor Yellow
+Write-Host "    Total event logs injected: 15 (5 per attack)                " -ForegroundColor Yellow
 Write-Host "    The LogWatch AI Agent is now analyzing all anomalies.       " -ForegroundColor Yellow
 Write-Host "                                                                " -ForegroundColor Cyan
 Write-Host "    >> Go to https://ai-logwatch.me to see the results! <<      " -ForegroundColor Green
