@@ -244,6 +244,16 @@ def process_log_anomaly(log_id: int, timestamp: datetime, level: str, log_type: 
             log_obj = db.query(LogDB).filter(LogDB.id == log_id).first()
             if log_obj:
                 log_obj.is_anomaly = True
+                
+                # --- AI VIRUS PRESENTATION OVERRIDE ---
+                if "Windows Defender" in log_obj.message:
+                    level = "HIGH"
+                    if "SECURITY_PRODUCT_STATE_ON" in log_obj.message:
+                        message = "Malware/Virus payload download detected. Windows Defender intercepted a malicious file."
+                    elif "SECURITY_PRODUCT_STATE_SNOOZED" in log_obj.message:
+                        message = "Windows Defender maliciously disabled (SNOOZED)."
+                    log_obj.level = level
+                    log_obj.message = message
 
             # Create in-app notification
             notif = NotificationDB(
