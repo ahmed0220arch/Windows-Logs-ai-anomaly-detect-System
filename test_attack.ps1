@@ -82,10 +82,21 @@ Write-Host ""
 $ransomDir = "$env:USERPROFILE\Desktop\Company_Files"
 $backupDir = "$env:USERPROFILE\Desktop\Company_Files_Backup"
 
-Write-Host "  [*] Restoring fresh company files for demo..." -ForegroundColor Green
-if (Test-Path $backupDir) {
-    Copy-Item -Path "$backupDir\*" -Destination $ransomDir -Recurse -Force
+if (-not (Test-Path $backupDir)) {
+    New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
+    Set-Content -Path "$backupDir\Q4_Financial_Report.xlsx" -Value "CONFIDENTIAL - Q4 Earnings..."
+    Set-Content -Path "$backupDir\Client_Contracts_2026.docx" -Value "Contract agreements for top 10 enterprise clients..."
+    Set-Content -Path "$backupDir\HR_Salary_Records.xlsx" -Value "Employee names, SSN, and salary details..."
+    Set-Content -Path "$backupDir\Server_Backup_Config.json" -Value "{'db_password': 'admin', 'host': '10.0.0.5'}"
+    Set-Content -Path "$backupDir\Source_Code_Repository.zip" -Value "PK...[Encrypted Source Code Archive]"
+    Set-Content -Path "$backupDir\CEO_Inbox_Export.pst" -Value "Outlook Data File Header..."
+    Set-Content -Path "$backupDir\Production_Database_Dump.sql" -Value "INSERT INTO users (id, password_hash) VALUES..."
+    Set-Content -Path "$backupDir\Board_Meeting_Minutes.pdf" -Value "%PDF-1.4...Acquisition strategy discussion..."
 }
+
+Write-Host "  [*] Restoring fresh company files for demo..." -ForegroundColor Green
+New-Item -ItemType Directory -Force -Path $ransomDir | Out-Null
+Copy-Item -Path "$backupDir\*" -Destination $ransomDir -Recurse -Force
 Start-Sleep -Seconds 1
 
 Write-Host ""
