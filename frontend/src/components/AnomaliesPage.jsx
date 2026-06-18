@@ -23,63 +23,7 @@ function formatDate(timestamp) {
   return date.toLocaleString();
 }
 
-function getFrenchDescription(message) {
-  if (!message) return "Aucune description disponible.";
-  const m = message.toLowerCase();
 
-  // ---- Authentication / Identity logs ----
-  if (m.includes('s-1-5-') && m.includes('negotiate'))
-    return "Tentative d'authentification via le protocole Negotiate (Kerberos/NTLM). Un SID inconnu ou une session inhabituelle peut signifier un accès non autorisé à la machine.";
-  if (m.includes('s-1-5-') && (m.includes('windowslive') || m.includes('microsoftaccount') || m.includes('gmail')))
-    return "Ouverture de session avec un compte Microsoft/Live lié. Vérifiez que l'utilisateur et le terminal sont bien autorisés à accéder à cette machine.";
-  if (m.includes('s-1-5-') && m.includes('workgroup'))
-    return "Événement d'audit de sécurité Windows dans un WORKGROUP. Une énumération de comptes ou un accès par SID système (S-1-5-18) peut indiquer une activité de reconnaissance.";
-  if (m.includes('0xc000006d') || m.includes('bad password') || (m.includes('fail') && m.includes('login')))
-    return "Échec de connexion : mot de passe incorrect ou compte inexistant. Plusieurs échecs consécutifs peuvent indiquer une attaque par force brute.";
-  if (m.includes('logon') && m.includes('type') && (m.includes('10') || m.includes('remote')))
-    return "Connexion à distance détectée (Type 10 – RDP). Si l'adresse IP source est inconnue, cela peut être une tentative d'intrusion via le Bureau à distance.";
-
-  // ---- Network / DNS / Proxy ----
-  if (m.includes('wpad'))
-    return "Requête WPAD (Web Proxy Auto-Discovery) détectée. Un attaquant sur le réseau local peut exploiter WPAD pour intercepter le trafic HTTP via un faux proxy (attaque Man-in-the-Middle).";
-  if (m.includes('360safe') || m.includes('qihoo'))
-    return "Connexion vers le domaine 360safe.com (antivirus Qihoo 360). Ce logiciel envoie de la télémétrie vers des serveurs tiers. S'il n'a pas été installé volontairement, il peut s'agir d'un programme potentiellement indésirable (PUP).";
-  if (m.includes('dns') && (m.includes('fail') || m.includes('timeout')))
-    return "Échec de résolution DNS. Le serveur DNS est injoignable ou le nom de domaine demandé n'existe pas. Cela peut bloquer l'accès à des services réseau critiques.";
-  if (m.includes('timeout') || m.includes('timed out'))
-    return "Délai d'attente dépassé. Le service distant n'a pas répondu dans le temps imparti, ce qui peut indiquer une surcharge réseau, un pare-feu bloquant la connexion, ou un service en panne.";
-  if (m.includes('socket') || m.includes('connection refused'))
-    return "Connexion réseau refusée ou socket fermé. Le port cible est fermé ou le service n'écoute pas. Vérifiez le pare-feu et l'état du service distant.";
-
-  // ---- Resource / Performance ----
-  if (m.includes('resource budget') || m.includes('allocatefwcps'))
-    return "Le composant système a dépassé son quota de ressources (mémoire ou CPU). Cela provoque un échec d'allocation et peut entraîner des plantages ou un ralentissement critique du système.";
-  if (m.includes('out of memory') || m.includes('memory allocation'))
-    return "Mémoire insuffisante. Le processus ne peut plus allouer de RAM, ce qui provoque des plantages. Identifiez le processus consommateur via le Gestionnaire des tâches et envisagez d'augmenter la mémoire.";
-  if (m.includes('disk full') || m.includes('no space'))
-    return "Espace disque insuffisant. Les journaux, bases de données et fichiers temporaires ne peuvent plus être écrits. Libérez de l'espace immédiatement pour éviter une panne complète.";
-
-  // ---- Process / Service crashes ----
-  if (m.includes('crash') || m.includes('unhandled exception') || m.includes('faulting application'))
-    return "Un processus a planté de manière inattendue suite à une exception non gérée. Consultez le dump mémoire ou les détails de l'événement pour identifier le module défaillant et appliquer un correctif.";
-  if (m.includes('stopped unexpectedly') || m.includes('terminated'))
-    return "Un service Windows s'est arrêté de manière inattendue. Les dépendances de ce service sont potentiellement affectées. Redémarrez-le et vérifiez les journaux associés.";
-  if (m.includes('svchost') && m.includes('error'))
-    return "Erreur dans le processus svchost.exe qui héberge plusieurs services Windows. L'ID d'événement et le nom du service indiquent quel composant est en cause.";
-
-  // ---- Security / Privilege ----
-  if (m.includes('access denied') || m.includes('privilege') || m.includes('unauthorized'))
-    return "Accès refusé à une ressource protégée. Un utilisateur ou un processus a tenté une action sans les permissions nécessaires. Vérifiez les ACL et les stratégies de groupe.";
-  if (m.includes('audit') && m.includes('policy'))
-    return "Modification de la stratégie d'audit Windows détectée. Quelqu'un a changé les règles de journalisation, ce qui pourrait masquer des activités malveillantes futures.";
-
-  // ---- Database ----
-  if (m.includes('database') || m.includes('sql') || m.includes('postgres') || m.includes('connection failed'))
-    return "Problème de connexion à la base de données. Le serveur DB est peut-être arrêté, les identifiants sont incorrects, ou le nombre maximal de connexions est atteint.";
-
-  // ---- Fallback: parse the message itself for useful context ----
-  return "Activité anormale détectée par le moteur d'IA. Ce log s'écarte significativement du comportement habituel du système. Examinez le message brut et le contexte temporel (CPU/RAM) pour identifier la cause.";
-}
 
 const ITEMS_PER_PAGE = 50;
 
@@ -350,7 +294,7 @@ export default function AnomaliesPage() {
           <table className="min-w-full">
             <thead>
               <tr style={{ borderBottom: '1px solid #1a2555' }}>
-                {['ID', 'Timestamp', 'Criticality', 'Type', 'CPU %', 'RAM %', 'Project', 'Message', 'Description (FR)'].map((h) => (
+                {['ID', 'Timestamp', 'Criticality', 'Type', 'CPU %', 'RAM %', 'Project', 'Message'].map((h) => (
                   <th
                     key={h}
                     className="px-6 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.12em]"
@@ -402,9 +346,6 @@ export default function AnomaliesPage() {
                     </td>
                     <td className="px-6 py-3 text-[13px] font-mono break-words" style={{ color: '#e2e8f0', maxWidth: '300px' }}>
                       {log.message}
-                    </td>
-                    <td className="px-6 py-3 text-[13px] break-words" style={{ color: '#818cf8', maxWidth: '250px' }}>
-                      {getFrenchDescription(log.message)}
                     </td>
                   </tr>
                 );

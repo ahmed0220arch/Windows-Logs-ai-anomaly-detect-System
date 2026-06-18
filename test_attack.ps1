@@ -203,6 +203,45 @@ Write-Host "  [+] 4 domain credentials extracted (simulated)." -ForegroundColor 
 Write-Host "  [+] No real credentials were accessed." -ForegroundColor Green
 Write-Host ""
 
+# ----------------------------------------------------------------
+# ATTACK 4: DATA EXFILTRATION TO THE CLOUD
+# ----------------------------------------------------------------
+Write-Host ""
+Read-Host "  [!] Press ENTER to launch Attack 4 (Data Exfiltration)..."
+Write-Host "==================================================================" -ForegroundColor Red
+Write-Host "  ATTACK 4/4: DATA EXFILTRATION TO EXTERNAL CLOUD                " -ForegroundColor Red
+Write-Host "==================================================================" -ForegroundColor Red
+Write-Host ""
+Write-Host "  WHAT THIS SIMULATES:" -ForegroundColor Cyan
+Write-Host "  The attacker has found sensitive data (like the Board Minutes" -ForegroundColor White
+Write-Host "  and Financials) and is secretly uploading them to a remote" -ForegroundColor White
+Write-Host "  cloud server before encrypting the network." -ForegroundColor White
+Write-Host "  This is known as 'Double Extortion'." -ForegroundColor White
+Write-Host ""
+
+Write-Host "  [*] Compressing sensitive documents..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+Write-Host "  [*] Uploading to remote IP 194.23.45.11 (Mega.nz / Pastebin)..." -ForegroundColor Green
+Start-Sleep -Seconds 1
+
+$exfilSize = 0
+for ($i=1; $i -le 10; $i++) {
+    $exfilSize += Get-Random -Min 15 -Max 45
+    Write-Host "    [TRANSFER] Chunk $i sent -> $exfilSize MB total uploaded" -ForegroundColor DarkYellow
+    Start-Sleep -Milliseconds 400
+}
+
+eventcreate /t ERROR /id 888 /l application /d "SECURITY ALERT: Massive outbound data transfer detected. Process 'powershell.exe' uploaded 350MB of data to unauthorized external IP 194.23.45.11." | Out-Null
+eventcreate /t ERROR /id 888 /l system /d "WARNING: High sustained network bandwidth usage on port 443. Traffic signature matches known cloud storage providers used for exfiltration." | Out-Null
+eventcreate /t ERROR /id 888 /l application /d "CRITICAL: Multiple access to sensitive folders (CEO_Inbox, Financials) followed by archive creation (dump.zip). Potential data theft in progress." | Out-Null
+eventcreate /t ERROR /id 888 /l system /d "ALERT: Anomalous DNS requests detected for domains associated with anonymous file-sharing services (mega.nz, dropmefiles.com)." | Out-Null
+eventcreate /t ERROR /id 888 /l application /d "SECURITY WARNING: 'tar' or '7z' utility executed with maximum compression flags by non-admin user." | Out-Null
+
+Write-Host ""
+Write-Host "  [+] Data exfiltration simulated." -ForegroundColor Green
+Write-Host "  [+] No actual data was sent outside this computer." -ForegroundColor Green
+Write-Host ""
+Start-Sleep -Seconds 2
 
 
 # ----------------------------------------------------------------
@@ -216,8 +255,9 @@ Write-Host "                                                                " -F
 Write-Host "    + Attack 1: Cryptominer (XMRig) - CPU spike to 100%         " -ForegroundColor White
 Write-Host "    + Attack 2: Ransomware ($lb_tool) - 8 files encrypted       " -ForegroundColor White
 Write-Host "    + Attack 3: Credential Theft ($m_tool) - 4 passwords        " -ForegroundColor White
+Write-Host "    + Attack 4: Data Exfiltration - 350MB uploaded to cloud     " -ForegroundColor White
 Write-Host "                                                                " -ForegroundColor Cyan
-Write-Host "    Total event logs injected: 15 (5 per attack)                " -ForegroundColor Yellow
+Write-Host "    Total event logs injected: 20 (5 per attack)                " -ForegroundColor Yellow
 Write-Host "    The LogWatch AI Agent is now analyzing all anomalies.       " -ForegroundColor Yellow
 Write-Host "                                                                " -ForegroundColor Cyan
 Write-Host "    >> Go to https://ai-logwatch.me to see the results! <<      " -ForegroundColor Green
